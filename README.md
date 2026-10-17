@@ -2,7 +2,7 @@
 
 Type any New York City address (and, if you like, an apartment number) and see what the city knows about the building before you sign a lease.
 
-**Live site:** https://jbobrow.github.io/nyc-renting/
+**Live site:** https://nycrent.jonbobrow.com
 
 ## What it checks
 
@@ -34,6 +34,8 @@ Links to a report look like `#BBL-BIN-APT-STREET`, so they reopen the same build
 - Rent stabilization is an estimate from the building's age, size and type; the state doesn't publish a list.
 - The comparison baselines were sampled in October 2026 and are embedded in the page (`BASE`).
 - A clean record is a good sign, not a guarantee.
+
+Made by [Jon Bobrow](https://jonbobrow.com).
 
 ## Run locally
 
