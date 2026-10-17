@@ -724,7 +724,7 @@ function headline(R) {
 function headlineCore(R) {
   const { bad, warn, ok } = R.counts;
   if (bad >= 2) return ["Serious red flags in the city's records", `${bad} concerns and ${plural(warn, "thing")} to ask about.`];
-  if (bad === 1) return ["One real concern, worth a hard question", warn ? `Plus ${plural(warn, "thing")} to ask about.` : "Everything else looks clear."];
+  if (bad === 1) return ["One concern worth a follow-up", warn ? `Plus ${plural(warn, "thing")} to ask about.` : "Everything else looks clear."];
   if (warn >= 3) return ["A mixed record. Ask before you sign", `${plural(warn, "thing")} to ask the landlord about.`];
   if (warn) return ["Mostly clean, with something to ask about", `${plural(warn, "thing")} worth raising, ${ok} clear.`];
   return ["Nothing alarming in the city's records", "Every check came back clear. Still visit at night, and in winter if you can."];
