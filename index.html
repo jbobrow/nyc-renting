@@ -1,0 +1,1174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>NYC Renting · Know before you sign</title>
+<meta name="description" content="Look up any NYC address and see the building's record before you sign a lease: violations, heat, bedbugs, evictions, lawsuits, building safety, noise, rats and who owns it.">
+<meta property="og:title" content="NYC Renting · Know before you sign">
+<meta property="og:description" content="Look up any NYC address and see the building's record before you sign a lease: violations, heat, bedbugs, evictions, lawsuits, building safety, noise, rats and who owns it.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#16202A">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%2316202A'/%3E%3Cpath d='M18 50V26l14-10 14 10v24H36V38h-8v12z' fill='%23F1F3EF'/%3E%3Cpath d='M24 30h16' stroke='%232446A8' stroke-width='4'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: search bar on top, then a building "report card" (nine checks, 3×3) followed by evidence sections in a two-column grid. */
+:root {
+  --paper: #F1F3EF;
+  --surface: #FFFFFF;
+  --ink: #16202A;
+  --muted: #56636D;
+  --line: #D3D9D3;
+  --accent: #2446A8;
+  --accent-soft: #E3E9F8;
+  --ok: #2B7A4B;
+  --ok-soft: #E2F1E7;
+  --warn: #A86A0F;
+  --warn-soft: #FAEED8;
+  --bad: #BE3328;
+  --bad-soft: #FBE4E1;
+  --none: #7A858D;
+  --none-soft: #E8ECE9;
+  --display: "Archivo", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --body: "Public Sans", "Helvetica Neue", Arial, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #10151A; --surface: #172028; --ink: #E6EBEE; --muted: #95A2AC; --line: #2A353F;
+    --accent: #8FA9FF; --accent-soft: #1E2A4A;
+    --ok: #5EC48B; --ok-soft: #173326; --warn: #E8B451; --warn-soft: #3A2C12;
+    --bad: #F2786A; --bad-soft: #3D1C19; --none: #8A959D; --none-soft: #222B33;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #10151A; --surface: #172028; --ink: #E6EBEE; --muted: #95A2AC; --line: #2A353F;
+  --accent: #8FA9FF; --accent-soft: #1E2A4A;
+  --ok: #5EC48B; --ok-soft: #173326; --warn: #E8B451; --warn-soft: #3A2C12;
+  --bad: #F2786A; --bad-soft: #3D1C19; --none: #8A959D; --none-soft: #222B33;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--paper); color: var(--ink);
+  font: 15px/1.55 var(--body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: max(20px, env(safe-area-inset-top, 0px)) max(40px, env(safe-area-inset-bottom, 0px));
+}
+.wrap { max-width: 1080px; margin: 0 auto; display: grid; gap: 28px; }
+#out { display: grid; gap: 28px; }
+a { color: var(--accent); text-underline-offset: 2px; }
+a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.num { font-variant-numeric: tabular-nums; }
+
+/* Masthead + search */
+.mast { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 20px; }
+.brand { font-family: var(--display); font-weight: 800; font-stretch: 112%; font-size: 1.25rem; letter-spacing: -0.01em; margin: 0; }
+.brand span { color: var(--accent); }
+.tag { color: var(--muted); font-size: 0.9rem; margin: 0; }
+.search { position: relative; }
+.search label { display: block; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 6px; }
+.field { display: flex; gap: 8px; }
+.field .addrbox { flex: 1; min-width: 0; position: relative; }
+.field .aptbox { width: 6.5rem; flex: none; }
+.field input {
+  width: 100%; font: 600 1.15rem/1.2 var(--body); color: var(--ink);
+  background: var(--surface); border: 2px solid var(--ink); border-radius: 4px; padding: 14px 14px;
+}
+.field input::placeholder { color: var(--muted); font-weight: 400; }
+.field button {
+  font: 700 0.95rem var(--body); background: var(--ink); color: var(--paper); border: 0; border-radius: 4px; padding: 0 18px; cursor: pointer; align-self: flex-end; height: 52px;
+}
+.suggest { position: absolute; left: 0; right: 0; top: 100%; margin: 4px 0 0; padding: 4px; list-style: none; background: var(--surface); border: 1px solid var(--line); border-radius: 4px; box-shadow: 0 10px 30px rgba(0,0,0,.12); z-index: 5; }
+.suggest li { padding: 10px 12px; border-radius: 3px; cursor: pointer; display: flex; justify-content: space-between; gap: 12px; }
+.suggest li small { color: var(--muted); white-space: nowrap; }
+.suggest li[aria-selected="true"], .suggest li:hover { background: var(--accent-soft); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px 8px; margin-top: 10px; align-items: center; font-size: 0.85rem; color: var(--muted); }
+.chips button { font: 500 0.85rem var(--body); color: var(--ink); background: transparent; border: 1px solid var(--line); border-radius: 99px; padding: 4px 11px; cursor: pointer; }
+.chips button:hover { border-color: var(--ink); }
+
+/* Building header */
+.bldg { display: grid; gap: 14px; }
+.eyebrow { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 0; }
+.addr { font-family: var(--display); font-weight: 800; font-stretch: 78%; font-size: clamp(2.2rem, 7vw, 4.2rem); line-height: 0.95; letter-spacing: -0.01em; margin: 0; text-transform: uppercase; text-wrap: balance; overflow-wrap: anywhere; }
+.addr small { font-size: 0.45em; font-stretch: 90%; color: var(--accent); letter-spacing: 0; white-space: nowrap; }
+.facts { display: flex; flex-wrap: wrap; gap: 6px 22px; margin: 0; padding: 0; list-style: none; color: var(--muted); font-size: 0.9rem; align-items: center; }
+.facts b { color: var(--ink); font-weight: 600; }
+.facts .stab a { display: inline-block; font-weight: 600; font-size: 0.8rem; text-decoration: none; padding: 2px 10px; border-radius: 99px; background: var(--accent-soft); color: var(--accent); }
+.mono { font-family: var(--mono); font-size: 0.85em; }
+
+/* Verdict */
+.verdict { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.verdict-head { padding: 18px 20px; display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); }
+.verdict-head .vt { display: grid; gap: 2px; min-width: 0; flex: 1 1 22rem; }
+.verdict-head h2 { font-family: var(--display); font-weight: 700; font-stretch: 100%; font-size: 1.5rem; line-height: 1.15; margin: 0; text-wrap: balance; }
+.verdict-head p { margin: 0; color: var(--muted); }
+.actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.actions button { font: 600 0.82rem var(--body); color: var(--ink); background: var(--paper); border: 1px solid var(--line); border-radius: 4px; padding: 7px 11px; cursor: pointer; }
+.actions button:hover { border-color: var(--ink); }
+.aptline { padding: 12px 20px; border-bottom: 1px solid var(--line); background: var(--accent-soft); font-size: 0.92rem; }
+.aptline b { font-weight: 700; }
+.checks { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.check { padding: 16px 20px 18px; border-top: 1px solid var(--line); border-left: 1px solid var(--line); display: grid; gap: 5px; align-content: start; grid-template-rows: auto auto auto 1fr auto; text-decoration: none; color: inherit; position: relative; }
+.check:hover { background: var(--paper); }
+.check:nth-child(-n+3) { border-top: 0; }
+.check:nth-child(3n+1) { border-left: 0; }
+.check::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--s); }
+.check h3 { margin: 0; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); }
+.check .big { font-family: var(--display); font-weight: 700; font-stretch: 90%; font-size: 1.7rem; line-height: 1.05; }
+.check p { margin: 0; font-size: 0.88rem; color: var(--muted); }
+.check p.cmp { font-size: 0.8rem; color: var(--ink); }
+.check .pill { margin-top: 4px; }
+.pill { justify-self: start; display: inline-flex; align-items: center; gap: 6px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; padding: 2px 8px; border-radius: 99px; color: var(--s); background: var(--s-soft); white-space: nowrap; }
+.pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.s-ok { --s: var(--ok); --s-soft: var(--ok-soft); }
+.s-warn { --s: var(--warn); --s-soft: var(--warn-soft); }
+.s-bad { --s: var(--bad); --s-soft: var(--bad-soft); }
+.s-none { --s: var(--none); --s-soft: var(--none-soft); }
+
+/* Sections */
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px 36px; }
+.sec { display: grid; gap: 12px; align-content: start; min-width: 0; scroll-margin-top: 16px; }
+.sec.wide { grid-column: 1 / -1; }
+.sec h2 { font-family: var(--display); font-weight: 700; font-stretch: 100%; font-size: 1.2rem; margin: 0; padding-top: 12px; border-top: 2px solid var(--ink); display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+.sec h2 .pill { font-family: var(--body); }
+.sec h3 { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); margin: 6px 0 0; }
+.sec p { margin: 0; max-width: 65ch; }
+.sec.apt h2 { border-top-color: var(--accent); }
+.note { color: var(--muted); font-size: 0.85rem; }
+.cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 36px; }
+.cols > div { display: grid; gap: 10px; align-content: start; min-width: 0; }
+.classbar { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.cls { background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 10px 12px; display: grid; gap: 2px; align-content: start; }
+.cls .k { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); }
+.cls .v { font-family: var(--display); font-weight: 700; font-size: 1.6rem; line-height: 1.1; }
+.cls .d { font-size: 0.78rem; color: var(--muted); line-height: 1.3; }
+.cls.hot { border-color: var(--bad); }
+.list { list-style: none; margin: 0; padding: 0; display: grid; }
+.list li { display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 0.9rem; }
+.list li:first-child { border-top: 1px solid var(--line); }
+.list .tagc { font-family: var(--mono); font-size: 0.75rem; font-weight: 500; padding: 1px 6px; border-radius: 3px; align-self: start; margin-top: 2px; }
+.tagc.C { background: var(--bad-soft); color: var(--bad); }
+.tagc.B { background: var(--warn-soft); color: var(--warn); }
+.tagc.A, .tagc.x { background: var(--none-soft); color: var(--muted); }
+.tagc.ok { background: var(--ok-soft); color: var(--ok); }
+.tagc.wide { min-width: 4.9em; text-align: center; }
+.list .meta { grid-column: 2; color: var(--muted); font-size: 0.8rem; }
+.hbars { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; }
+.hbars li { display: grid; grid-template-columns: minmax(0, 1fr) 3.2rem; gap: 2px 10px; font-size: 0.86rem; align-items: center; }
+.hbars .lab { overflow-wrap: anywhere; }
+.hbars .n { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
+.hbars .bar { grid-column: 1 / -1; height: 6px; background: var(--none-soft); border-radius: 3px; overflow: hidden; }
+.hbars .bar i { display: block; height: 100%; background: var(--b, var(--accent)); border-radius: 3px; }
+.chart { width: 100%; height: auto; display: block; overflow: visible; }
+.chart text { font-family: var(--body); fill: var(--muted); font-size: 11px; }
+.chart .val { fill: var(--ink); font-weight: 600; }
+.kv { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; margin: 0; font-size: 0.9rem; }
+.kv dt { color: var(--muted); }
+.kv dd { margin: 0; font-weight: 600; overflow-wrap: anywhere; }
+.links { display: flex; flex-wrap: wrap; gap: 8px; }
+.links a { display: inline-block; padding: 7px 12px; border: 1px solid var(--line); border-radius: 4px; background: var(--surface); text-decoration: none; font-weight: 600; font-size: 0.88rem; }
+.links a:hover { border-color: var(--accent); }
+.ask { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
+.ask li { max-width: 70ch; }
+.watch { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.watch li { display: grid; grid-template-columns: 8.4rem minmax(0, 1fr); gap: 2px 12px; align-items: start; font-size: 0.9rem; }
+.watch li .pill { margin-top: 1px; }
+.watch li b { display: block; }
+.watch li span.t { color: var(--muted); font-size: 0.85rem; }
+.loading { color: var(--muted); }
+.skel { height: 14px; border-radius: 3px; background: linear-gradient(90deg, var(--line), var(--paper), var(--line)); background-size: 200% 100%; animation: sh 1.2s infinite linear; }
+@keyframes sh { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+@media (prefers-reduced-motion: reduce) { .skel { animation: none; } }
+.err { color: var(--bad); font-size: 0.88rem; }
+.example { display: inline-block; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); background: var(--accent-soft); padding: 2px 8px; border-radius: 3px; }
+.toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--paper); padding: 9px 16px; border-radius: 4px; font-weight: 600; font-size: 0.88rem; z-index: 20; }
+footer { color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(--line); padding-top: 14px; display: grid; gap: 6px; }
+footer p { margin: 0; max-width: 90ch; }
+
+@media (max-width: 760px) {
+  .grid, .cols { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 640px) {
+  .checks { grid-template-columns: minmax(0, 1fr); }
+  .check:nth-child(n) { border-left: 0; border-top: 1px solid var(--line); }
+  .check:first-child { border-top: 0; }
+  .check { padding: 14px 16px 14px 20px; }
+  .check .big { font-size: 1.45rem; }
+}
+@media (max-width: 440px) {
+  .field { flex-wrap: wrap; }
+  .field .addrbox { flex: 1 1 100%; }
+  .field .aptbox { flex: 1 1 auto; width: auto; }
+  .field button { flex: 0 0 auto; }
+  .classbar { gap: 6px; }
+  .cls { padding: 8px; }
+  .cls .v { font-size: 1.3rem; }
+}
+@media print {
+  body { background: #fff; color: #000; }
+  .search, .actions, .links, footer, .mast .tag { display: none !important; }
+  .verdict, .cls { border-color: #999; }
+  .sec { break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="mast">
+    <p class="brand">NYC <span>Renting</span></p>
+    <p class="tag">Know before you sign. The city's record on any NYC building, in one place.</p>
+  </header>
+
+  <form class="search" id="form" autocomplete="off">
+    <div class="field">
+      <div class="addrbox">
+        <label for="q">Building address</label>
+        <input id="q" type="text" placeholder="e.g. 245 Eastern Parkway, Brooklyn" aria-autocomplete="list" aria-controls="sug" spellcheck="false">
+        <ul class="suggest" id="sug" role="listbox" hidden></ul>
+      </div>
+      <div class="aptbox">
+        <label for="apt">Apt</label>
+        <input id="apt" type="text" placeholder="Optional" spellcheck="false" maxlength="8">
+      </div>
+      <button type="submit">Look up</button>
+    </div>
+    <div class="chips" id="chips"><span>Try:</span></div>
+  </form>
+
+  <main id="out" aria-live="polite"></main>
+
+  <footer>
+    <p>Data comes live from NYC Open Data: HPD violations, complaints, registrations, litigation, bedbug filings, vacate orders, the Alternative Enforcement Program and the Certification of No Harassment list; DOB complaints, violations, ECB violations and boiler inspections; DOHMH rodent inspections; 311 service requests; the Speculation Watch List; DOI marshal evictions; DCP PLUTO; and NYC Planning's GeoSearch.</p>
+    <p>Comparisons use a random sample of 220 NYC buildings with three or more apartments (90 for noise and rats), drawn in October 2026. “The block” means everything within 150 meters, about a block in each direction.</p>
+    <p>HPD records mainly cover rental buildings with three or more units. Co-ops, condos and small homes may show little or nothing. A clean record is a good sign, not a guarantee.</p>
+  </footer>
+</div>
+
+<script>
+/* ---------- baselines (random sample of NYC buildings with 3+ apartments, Oct 2026) ----------
+   C: open Class C violations per unit · H: heat complaints per unit, winter 2025–26 · E: marshal evictions per unit since 2024
+   NOISE / ROD: 311 noise / rodent complaints within 150 m, Oct 2025 – Sep 2026. Only non-zero values listed; n = sample size. */
+const BASE = {"C":{"n":220,"v":[0.012,0.02,0.031,0.031,0.059,0.083,0.09,0.091,0.091,0.095,0.1,0.111,0.116,0.125,0.125,0.148,0.15,0.153,0.167,0.167,0.179,0.188,0.195,0.2,0.2,0.222,0.25,0.25,0.25,0.25,0.25,0.267,0.333,0.333,0.333,0.333,0.333,0.333,0.4,0.444,0.444,0.448,0.45,0.467,0.468,0.472,0.474,0.5,0.5,0.5,0.5,0.6,0.6,0.667,0.667,0.667,0.667,0.681,0.792,0.875,1.0,1.333,1.5,1.667,2.4,2.5,2.5,2.75,3.0,4.667,4.667,4.909,5.667]},"H":{"n":220,"v":[0.013,0.015,0.019,0.037,0.039,0.05,0.05,0.056,0.062,0.071,0.091,0.094,0.111,0.125,0.136,0.149,0.167,0.167,0.167,0.194,0.2,0.2,0.2,0.25,0.25,0.333,0.333,0.333,0.333,0.381,0.4,0.4,0.5,0.5,0.526,0.667,0.718,0.75,0.8,1.0,1.0,1.164,1.333]},"E":{"n":220,"v":[0.005,0.009,0.014,0.021,0.026,0.036,0.049,0.05,0.056,0.059,0.062,0.067,0.083,0.25,0.333,0.333,0.667]},"NOISE":{"n":90,"v":[9,15,16,20,20,21,23,24,26,29,29,30,31,31,33,33,33,33,33,37,37,39,42,44,44,44,45,49,55,57,60,60,60,62,63,63,65,67,72,74,79,82,84,88,94,97,98,110,113,113,121,127,128,138,139,143,144,145,146,159,166,167,168,177,189,194,197,198,202,212,221,232,236,271,285,287,295,302,360,389,410,427,438,456,595,625,793,939,1767,2597]},"ROD":{"n":90,"v":[1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,3,3,3,3,4,4,4,4,4,4,4,5,5,5,5,5,6,6,6,6,6,6,7,7,7,7,8,8,8,8,9,9,9,9,11,11,12,12,12,13,13,14,14,15,17,17,18,18,19,21,22,26,26,29,32,35,39]}};
+function shareBelow(v, b) { const zeros = b.n - b.v.length; if (v <= 0) return 0; return (zeros + b.v.filter(x => x < v).length) / b.n; }
+function medianOf(b) { const zeros = b.n - b.v.length, i = Math.floor(b.n / 2); return i < zeros ? 0 : b.v[i - zeros]; }
+function shareAbove(v, b) { return b.v.filter(x => x > v).length / b.n; }
+
+/* ---------- DOB complaint categories (DOB's published list), grouped for renters ---------- */
+const DOB_GROUPS = [
+  ["Illegal conversion or occupancy", "45 1A 4A 4G 48 71 72 92 2B"],
+  ["Elevator", "62 63 64 6S 6M 80 81 13"],
+  ["Boiler, gas or fumes", "56 57 58 82 65"],
+  ["Structure or façade", "10 28 30 40 41 43 54 84 2L 2K 2F"],
+  ["Blocked or missing exits", "37 38 39"],
+  ["Electrical", "59 60 61 3A"],
+  ["Plumbing or sprinklers", "66 76 94 52"],
+  ["Work without permits", "05 04 83 86 7J 5G 96 46 47 11 12 31 32 4X"],
+  ["Tenant safety during construction", "6V 6W 7L"],
+];
+const DOB_GROUP_OF = {};
+DOB_GROUPS.forEach(([label, codes]) => codes.split(" ").forEach(c => DOB_GROUP_OF[c] = label));
+
+/* ---------- data layer ---------- */
+const SODA = "https://data.cityofnewyork.us/resource/";
+const GEO = "https://geosearch.planninglabs.nyc/v2/";
+const BORO = { 1: "Manhattan", 2: "Bronx", 3: "Brooklyn", 4: "Queens", 5: "Staten Island" };
+
+async function soda(id, params, timeoutMs = 45000) {
+  const u = new URL(SODA + id + ".json");
+  for (const [k, v] of Object.entries(params)) u.searchParams.set(k, v);
+  const ac = new AbortController(), t = setTimeout(() => ac.abort(), timeoutMs);
+  try {
+    const r = await fetch(u, { signal: ac.signal });
+    if (!r.ok) throw new Error("NYC Open Data returned " + r.status + " for " + id);
+    return await r.json();
+  } catch (e) {
+    if (e.name === "AbortError") throw new Error("NYC Open Data took too long to answer.");
+    throw e;
+  } finally { clearTimeout(t); }
+}
+const skip = Promise.resolve(null);
+
+function iso(d) { return d.toISOString().slice(0, 10) + "T00:00:00"; }
+function yearsAgo(n, now) { const d = new Date(now); d.setFullYear(d.getFullYear() - n); return d; }
+function monthsAgo(n, now) { const d = new Date(now); d.setMonth(d.getMonth() - n); return d; }
+/* DOB dates come as "MM/DD/YYYY" or "MM/DD/YYYY HH:MM:SS" */
+function usDate(s) { const m = String(s || "").match(/^(\d{2})\/(\d{2})\/(\d{4})/); return m ? new Date(+m[3], +m[1] - 1, +m[2]) : null; }
+function ymdDate(s) { const m = String(s || "").match(/^(\d{4})(\d{2})(\d{2})$/); return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null; }
+
+/* Heat season runs Oct 1 – May 31. Season "2025" = Oct 2025 – May 2026. */
+function seasonOf(d) { return d.getMonth() >= 9 ? d.getFullYear() : (d.getMonth() <= 4 ? d.getFullYear() - 1 : null); }
+function currentSeason(now) { return now.getMonth() >= 9 ? now.getFullYear() : now.getFullYear() - 1; }
+
+function normApt(a) { return String(a || "").toUpperCase().replace(/^\s*(APT\.?|APARTMENT|UNIT|#)\s*/, "").replace(/[\s#.]/g, ""); }
+function aptVariants(a) {
+  const n = normApt(a); if (!n) return [];
+  const flat = n.replace(/-/g, "");
+  const v = new Set([n, flat]);
+  let m = flat.match(/^(\d+)([A-Z]+)$/); if (m) v.add(m[1] + "-" + m[2]);
+  m = flat.match(/^([A-Z]+)(\d+)$/); if (m) v.add(m[1] + "-" + m[2]);
+  return [...v];
+}
+const sqlList = arr => arr.map(x => `'${x.replace(/'/g, "''")}'`).join(",");
+
+/* Which records each check needs; a check shows "Loading" until all of its records are in. */
+const NEEDS = {
+  viol: ["violCounts", "violRecent", "violYear"], heat: ["heat", "complaints"], bugs: ["bedbugs"], evict: ["evictions"], law: ["litigation"],
+  watch: ["aep", "vacate", "conh", "spec"], dob: ["dobComp", "ecb", "dobViol", "boiler"], noise: ["nearby", "bldgNoise"], rats: ["nearby", "rodent"],
+  apt: ["aptViol", "aptComp", "aptEvict"], owner: ["reg", "contacts"], stab: ["pluto", "spec", "reg"],
+};
+const isPending = (R, k) => (NEEDS[k] || []).some(x => R.raw[x] && R.raw[x].pending);
+
+/* Fires every query at once and calls onUpdate (throttled) as answers arrive. Resolves with the final report. */
+function fetchReport(place, now, onUpdate) {
+  const bbl = place.bbl, bin = place.bin && place.bin !== "0" ? place.bin : null;
+  const boro = bbl[0], block = String(+bbl.slice(1, 6)), lot = String(+bbl.slice(6));
+  const W = `bbl='${bbl}'`;
+  const cur = currentSeason(now);
+  const heatFrom = new Date(cur - 5, 9, 1);
+  const yr = iso(yearsAgo(1, now)), yr2 = iso(yearsAgo(2, now));
+  const av = aptVariants(place.apt);
+  const q = {
+    pluto: soda("64uk-42ks", { $where: `bbl=${bbl}`, $select: "address,borough,unitsres,unitstotal,yearbuilt,numfloors,ownername,bldgclass,zipcode,latitude,longitude", $limit: 1 }),
+    violCounts: soda("wvxf-dwi5", { $where: W, $select: "class,violationstatus,count(*) as n", $group: "class,violationstatus" }),
+    violRecent: soda("wvxf-dwi5", { $where: `${W} AND violationstatus='Open' AND class in('B','C')`, $select: "class,inspectiondate,apartment,story,novdescription", $order: "inspectiondate DESC", $limit: 8 }),
+    violYear: soda("wvxf-dwi5", { $where: `${W} AND inspectiondate>='${yr}'`, $select: "count(*) as n" }),
+    heat: soda("ygpa-z7cr", { $where: `${W} AND major_category='HEAT/HOT WATER' AND received_date>='${iso(heatFrom)}'`, $select: "complaint_id,received_date", $limit: 50000 }),
+    complaints: soda("ygpa-z7cr", { $where: `${W} AND received_date>='${yr}'`, $select: "major_category,count(*) as n", $group: "major_category", $order: "n DESC", $limit: 6 }),
+    bedbugs: soda("wz6d-d3jb", { $where: W, $order: "filing_date DESC", $limit: 4 }),
+    evictions: soda("6z8x-wfk4", { $where: `${W} AND residential_commercial_ind='Residential'`, $select: "date_extract_y(executed_date) as y,count(*) as n", $group: "y", $order: "y" }),
+    litigation: soda("59kj-x8nc", { $where: W, $select: "casetype,caseopendate,casestatus,casejudgement,findingofharassment,respondent", $order: "caseopendate DESC", $limit: 40 }),
+    aep: soda("hcir-3275", { $where: W, $order: "aep_start_date DESC", $limit: 1 }),
+    vacate: soda("tb8q-a3ar", { $where: W, $select: "vacate_type,primary_vacate_reason,vacate_effective_date,actual_rescind_date,number_of_vacated_units", $order: "vacate_effective_date DESC", $limit: 10 }),
+    conh: soda("bzxi-2tsw", { $where: W, $limit: 1 }),
+    spec: soda("adax-9mit", { $where: W, $select: "deed_date,price,yearqtr,grantee", $order: "deed_date DESC", $limit: 1 }),
+    reg: soda("tesw-yqqr", { $where: `boroid='${boro}' AND block='${block}' AND lot='${lot}'`, $order: "lastregistrationdate DESC", $limit: 10 }),
+    dobComp: bin ? soda("eabe-havv", { $where: `bin='${bin}'`, $select: "complaint_category,date_entered,status", $limit: 5000 }) : skip,
+    ecb: bin ? soda("6bgk-3dad", { $where: `bin='${bin}' AND ecb_violation_status='ACTIVE'`, $select: "severity,issue_date,violation_type,violation_description,balance_due", $order: "issue_date DESC", $limit: 500 }) : skip,
+    dobViol: bin ? soda("3h2n-5cm9", { $where: `bin='${bin}' AND violation_category in('VH-VIOLATION HAZARDOUS - ACTIVE','VW-VIOLATION WORK WITHOUT PERMIT - ACTIVE','VWH-VIOLATION WORK W/OUT PMT HAZARDOUS - ACTIVE')`, $select: "violation_category,issue_date,violation_type", $limit: 50 }) : skip,
+    boiler: bin ? soda("52dp-yji6", { $where: `bin_number='${bin}'`, $select: "boiler_id,inspection_date,defects_exist,pressure_type", $limit: 1000 }) : skip,
+    rodent: soda("p937-wjvj", { $where: `${W} AND inspection_date>='${yr2}'`, $select: "inspection_date,inspection_type,result", $order: "inspection_date DESC", $limit: 50 }),
+    bldgNoise: soda("erm2-nwe9", { $where: `${W} AND created_date>='${yr}' AND starts_with(complaint_type,'Noise')`, $select: "descriptor,count(*) as n", $group: "descriptor", $order: "n DESC", $limit: 10 }),
+    aptViol: av.length ? soda("wvxf-dwi5", { $where: `${W} AND apartment in(${sqlList(av)})`, $select: "class,violationstatus,inspectiondate,novdescription", $order: "inspectiondate DESC", $limit: 500 }) : skip,
+    aptComp: av.length ? soda("ygpa-z7cr", { $where: `${W} AND apartment in(${sqlList(av)})`, $select: "complaint_id,received_date,major_category", $order: "received_date DESC", $limit: 5000 }) : skip,
+    aptEvict: av.length ? soda("6z8x-wfk4", { $where: `${W} AND eviction_apt_num in(${sqlList(av)})`, $select: "executed_date", $order: "executed_date DESC", $limit: 20 }) : skip,
+  };
+  // owner contacts need the registration id
+  q.contacts = q.reg.then(regs => {
+    if (!regs || !regs.length) return [];
+    const pick = regs.find(r => bin && r.bin === bin) || regs[0];
+    raw.regPick = pick;
+    return soda("feu5-w2e2", { $where: `registrationid='${pick.registrationid}'`, $select: "type,corporationname,firstname,lastname,businesscity", $limit: 50 });
+  });
+  // 311 around the building needs coordinates: from the address search, or from PLUTO
+  q.nearby = (place.lat ? Promise.resolve({ lat: place.lat, lon: place.lon })
+    : q.pluto.then(rows => rows && rows[0] && rows[0].latitude ? { lat: +rows[0].latitude, lon: +rows[0].longitude } : null))
+    .then(c => { if (!c) throw new Error("No map location for this building."); return fetchNearby(c.lat, c.lon, now); });
+
+  const raw = {};
+  const keys = Object.keys(q);
+  keys.forEach(k => raw[k] = { ok: false, pending: true });
+  let timer = null;
+  const flush = () => { timer = null; onUpdate(analyze(raw, now, place)); };
+  const schedule = () => { if (!timer) timer = setTimeout(flush, 200); };
+  return Promise.all(keys.map(k => q[k].then(
+    v => { raw[k] = v === null ? { ok: false, skipped: true } : { ok: true, rows: v }; },
+    e => { raw[k] = { ok: false, error: String(e && e.message || e) }; }
+  ).then(schedule))).then(() => { clearTimeout(timer); timer = null; return analyze(raw, now, place); });
+}
+
+function fetchNearby(lat, lon, now) {
+  return soda("erm2-nwe9", {
+    $where: `within_circle(location,${lat},${lon},150) AND created_date>='${iso(yearsAgo(1, now))}'`,
+    $select: "complaint_type,descriptor,count(*) as n", $group: "complaint_type,descriptor", $order: "n DESC", $limit: 1000
+  }, 60000);
+}
+
+/* ---------- analysis ---------- */
+const N = x => +x || 0;
+const RANK = { none: 0, ok: 1, warn: 2, bad: 3 };
+const worst = list => list.reduce((a, b) => RANK[b] > RANK[a] ? b : a, "ok");
+
+function analyze(raw, now, place) {
+  const R = { raw, now, place };
+  const p = raw.pluto.ok && raw.pluto.rows[0];
+  R.units = p ? N(p.unitsres) : 0;
+  R.unitsKnown = R.units > 0;
+  if (p && p.latitude && p.longitude) R.coords = { lat: +p.latitude, lon: +p.longitude };
+  const u = Math.max(R.units, 1);
+
+  // HPD violations
+  if (raw.violCounts.ok) {
+    const open = { A: 0, B: 0, C: 0, I: 0 }, all = { A: 0, B: 0, C: 0, I: 0 };
+    raw.violCounts.rows.forEach(r => { const c = r.class || "I"; all[c] = (all[c] || 0) + N(r.n); if (r.violationstatus === "Open") open[c] = (open[c] || 0) + N(r.n); });
+    const lastYear = raw.violYear.ok ? N(raw.violYear.rows[0] && raw.violYear.rows[0].n) : null;
+    const rate = open.C / u;
+    let s = "ok";
+    if (open.C >= 25 || (R.unitsKnown && rate >= 0.5)) s = "bad";
+    else if (open.C >= 5 || (R.unitsKnown && rate >= 0.1) || open.B >= 20) s = "warn";
+    R.viol = { open, all, lastYear, s, rate };
+  }
+
+  // Heat
+  if (raw.heat.ok) {
+    const cur = currentSeason(now);
+    const seasons = new Map(); for (let y = cur - 5; y <= cur; y++) seasons.set(y, new Set());
+    raw.heat.rows.forEach(r => { const y = seasonOf(new Date(r.received_date)); if (seasons.has(y)) seasons.get(y).add(r.complaint_id); });
+    const bars = [...seasons].map(([y, set]) => ({ y, n: set.size, current: y === cur }));
+    const last = bars[bars.length - 2];
+    const per = last.n / u;
+    let s = "ok";
+    if (last.n >= 40 || (R.unitsKnown && per >= 0.25)) s = "bad";
+    else if (last.n >= 5 || (R.unitsKnown && per >= 0.06)) s = "warn";
+    R.heat = { bars, last, s, per };
+  }
+
+  // Bedbugs
+  if (raw.bedbugs.ok) {
+    const f = raw.bedbugs.rows[0];
+    if (!f) R.bugs = { s: "none", f: null };
+    else {
+      const inf = N(f.infested_dwelling_unit_count), re = N(f.re_infested_dwelling_unit);
+      const end = new Date(f.filling_period_end_date || f.filing_date);
+      const stale = (now - end) / 864e5 > 800;
+      const s = inf > 0 ? (re > 0 || (R.unitsKnown && inf / u >= 0.05) ? "bad" : "warn") : "ok";
+      R.bugs = { s, f, inf, re, stale, end, history: raw.bedbugs.rows };
+    }
+  }
+
+  // Evictions
+  if (raw.evictions.ok) {
+    const byYear = raw.evictions.rows.map(r => ({ y: N(r.y), n: N(r.n) })).filter(r => r.y);
+    const total = byYear.reduce((a, b) => a + b.n, 0);
+    const y0 = now.getFullYear() - 2;
+    const recent = byYear.filter(r => r.y >= y0).reduce((a, b) => a + b.n, 0);
+    let s = "ok";
+    if (recent >= 6 || (R.unitsKnown && recent / u >= 0.05)) s = "bad";
+    else if (recent >= 1) s = "warn";
+    R.evict = { byYear, total, recent, y0, s, per: recent / u };
+  }
+
+  // HPD litigation
+  if (raw.litigation.ok) {
+    const rows = raw.litigation.rows;
+    const harass = rows.filter(r => /inquest|trial/i.test(r.findingofharassment || ""));
+    const cutoff = yearsAgo(3, now);
+    const recent = rows.filter(r => new Date(r.caseopendate) >= cutoff);
+    const open = rows.filter(r => /pending|open/i.test(r.casestatus || ""));
+    let s = "ok";
+    if (harass.length) s = "bad";
+    else if (open.length || recent.length >= 2) s = "warn";
+    R.law = { rows, harass, recent, open, s };
+  }
+
+  // City watch lists: AEP, vacate orders, Certification of No Harassment, Speculation Watch List
+  if (raw.aep.ok || raw.vacate.ok || raw.conh.ok || raw.spec.ok) {
+    const lists = [];
+    const a = raw.aep.ok && raw.aep.rows[0];
+    if (a) {
+      const active = /active/i.test(a.current_status);
+      lists.push({ s: active ? "bad" : "warn", name: "Alternative Enforcement Program",
+        text: active ? `On HPD's list of the city's most distressed buildings since ${dfmt(a.aep_start_date)}, with ${fmt(N(a.of_b_c_violations_at_start))} hazardous violations when it was added.`
+                     : `Was on HPD's list of the most distressed buildings from ${dfmt(a.aep_start_date)}${a.discharge_date ? ` to ${dfmt(a.discharge_date)}` : ""}.` });
+    }
+    const vac = raw.vacate.ok ? raw.vacate.rows : [];
+    const activeVac = vac.filter(v => !v.actual_rescind_date);
+    const recentVac = vac.filter(v => v.actual_rescind_date && new Date(v.vacate_effective_date) >= yearsAgo(5, now));
+    activeVac.forEach(v => lists.push({ s: /entire/i.test(v.vacate_type) ? "bad" : "warn", name: `Vacate order in effect (${(v.vacate_type || "").toLowerCase()})`,
+      text: `HPD ordered ${v.number_of_vacated_units ? plural(N(v.number_of_vacated_units), "unit") : "part of the building"} vacated on ${dfmt(v.vacate_effective_date)} for ${String(v.primary_vacate_reason || "unknown reasons").toLowerCase()}. It hasn't been lifted.` }));
+    recentVac.forEach(v => lists.push({ s: /habitab|illegal/i.test(v.primary_vacate_reason || "") ? "warn" : "ok", name: "Past vacate order",
+      text: `${v.vacate_type} vacate for ${String(v.primary_vacate_reason || "").toLowerCase()}, ${dfmt(v.vacate_effective_date)} to ${dfmt(v.actual_rescind_date)}.` }));
+    const c = raw.conh.ok && raw.conh.rows[0];
+    if (c) lists.push({ s: "warn", name: "Certification of No Harassment list",
+      text: `Added ${dfmt(c.date_added)}. Before getting permits for demolition or major work, the owner must prove to HPD that it hasn't harassed tenants. Buildings land here after signs of distress${c.harassment_finding === "Yes" ? ", including a harassment finding" : ""}.` });
+    const sp = raw.spec.ok && raw.spec.rows[0];
+    if (sp) lists.push({ s: "warn", name: "Speculation Watch List",
+      text: `This rent-regulated building sold ${sp.deed_date ? "on " + dfmt(sp.deed_date) : "in " + sp.yearqtr}${N(sp.price) ? ` for $${fmt(N(sp.price))}` : ""}, a price the city flags as suggesting the buyer expects to push rents up quickly.` });
+    const flagged = lists.filter(l => l.s !== "ok");
+    R.watch = { lists, flagged, s: flagged.length ? worst(flagged.map(l => l.s)) : "ok", activeVac };
+  }
+
+  // DOB: complaints, open hazardous/no-permit violations, boiler
+  if (raw.dobComp.ok || raw.ecb.ok || raw.boiler.ok) {
+    const two = yearsAgo(2, now);
+    const comps = raw.dobComp.ok ? raw.dobComp.rows.map(r => ({ ...r, d: usDate(r.date_entered) })).filter(r => r.d && r.d >= two) : [];
+    const groups = {};
+    comps.forEach(r => { const g = DOB_GROUP_OF[r.complaint_category] || "Other"; groups[g] = (groups[g] || 0) + 1; });
+    const ecb = raw.ecb.ok ? raw.ecb.rows : [];
+    const ecbHaz = ecb.filter(r => /CLASS - 1|^Hazardous/i.test(r.severity || ""));
+    const balance = ecb.reduce((a, r) => a + N(r.balance_due), 0);
+    const dv = raw.dobViol.ok ? raw.dobViol.rows : [];
+    const dvHaz = dv.filter(r => /HAZARDOUS/i.test(r.violation_category));
+    // boiler: most recent inspection on file across the building's boilers
+    let boiler = null;
+    if (raw.boiler.ok && raw.boiler.rows.length) {
+      const byId = {};
+      raw.boiler.rows.forEach(r => { const d = usDate(r.inspection_date); if (!d) return; if (!byId[r.boiler_id] || d > byId[r.boiler_id].d) byId[r.boiler_id] = { ...r, d }; });
+      const latest = Object.values(byId).sort((a, b) => b.d - a.d);
+      if (latest.length) {
+        const newest = latest[0].d;
+        const current = latest.filter(b => (now - b.d) / 864e5 < 550);
+        boiler = { latest, newest, ageMonths: (now - newest) / (864e5 * 30.4), defects: current.filter(b => b.defects_exist === "Yes").length, count: current.length || 1 };
+      }
+    }
+    const illegal = groups["Illegal conversion or occupancy"] || 0;
+    let s = "ok";
+    if (ecbHaz.length >= 3 || dvHaz.length || illegal >= 2 || (boiler && boiler.ageMonths > 24)) s = "bad";
+    else if (ecbHaz.length || dv.length || illegal || (boiler && (boiler.defects || boiler.ageMonths > 18)) || comps.length >= 5) s = "warn";
+    R.dob = { comps, groups, ecb, ecbHaz, balance, dv, dvHaz, boiler, illegal, s };
+  } else if (!place.bin || place.bin === "0") {
+    R.dob = { s: "none", noBin: true };
+  }
+
+  // Rodent inspections at this property (nearby 311 added later)
+  R.rodentProp = raw.rodent.ok ? raw.rodent.rows : null;
+
+  // Noise reported inside this building
+  R.bldgNoise = raw.bldgNoise.ok ? raw.bldgNoise.rows.map(r => ({ d: r.descriptor, n: N(r.n) })) : null;
+
+  // Owner
+  if (raw.contacts.ok) {
+    const c = raw.contacts.rows;
+    const name = r => r.corporationname || [r.firstname, r.lastname].filter(Boolean).join(" ");
+    const pickT = (...types) => { for (const t of types) { const m = c.find(r => r.type === t && name(r)); if (m) return name(m); } return null; };
+    R.owner = {
+      owner: pickT("CorporateOwner", "IndividualOwner", "JointOwner"),
+      officer: (() => { const m = c.find(r => r.type === "HeadOfficer"); return m ? [m.firstname, m.lastname].filter(Boolean).join(" ") || m.corporationname : null; })(),
+      agent: pickT("Agent"),
+      site: (() => { const m = c.find(r => r.type === "SiteManager"); return m ? [m.firstname, m.lastname].filter(Boolean).join(" ") : null; })(),
+      reg: raw.regPick || null,
+      plutoOwner: p ? p.ownername : null,
+    };
+  }
+
+  // Rent stabilization signal
+  R.stab = stabilization(p, raw);
+
+  // One apartment
+  if (place.apt && (raw.aptViol.ok || raw.aptComp.ok)) {
+    const vi = raw.aptViol.ok ? raw.aptViol.rows : [];
+    const co = raw.aptComp.ok ? raw.aptComp.rows : [];
+    const ids = new Set(co.map(r => r.complaint_id));
+    const cats = {};
+    const seen = new Set();
+    co.forEach(r => { const k = r.complaint_id + "|" + r.major_category; if (seen.has(k)) return; seen.add(k); cats[r.major_category] = (cats[r.major_category] || 0) + 1; });
+    const since = co.length ? new Date(co[co.length - 1].received_date) : null;
+    const heatIds = new Set(co.filter(r => r.major_category === "HEAT/HOT WATER" && new Date(r.received_date) >= new Date(currentSeason(now) - 3, 9, 1)).map(r => r.complaint_id));
+    R.apt = {
+      label: normApt(place.apt), viol: vi, violOpen: vi.filter(r => r.violationstatus === "Open"),
+      complaints: ids.size, cats: Object.entries(cats).sort((a, b) => b[1] - a[1]), since, heat3: heatIds.size,
+      evictions: raw.aptEvict.ok ? raw.aptEvict.rows : [],
+    };
+  }
+
+  analyzeNearby(R);
+  tally(R);
+  return R;
+}
+
+function stabilization(p, raw) {
+  const sp = raw.spec.ok && raw.spec.rows[0];
+  if (!p) return null;
+  const cls = String(p.bldgclass || ""), yb = N(p.yearbuilt), units = N(p.unitsres);
+  const coop = /^(C6|C8|D0|D4)$/.test(cls), condo = /^R/.test(cls);
+  const hasReg = raw.reg.ok && raw.reg.rows.length > 0;
+  if (sp) return { level: "likely", chip: "Rent regulated", text: "The city's Speculation Watch List only includes rent-regulated buildings, so at least some apartments here are covered." };
+  if ((coop || condo) && cls !== "RR") return { level: "unlikely", chip: coop ? "Co-op building" : "Condo building", text: `Apartments that ${coop ? "co-op shareholders sublet" : "condo owners rent out"} usually aren't rent stabilized, though a long-time renter in a converted building may still be covered.` };
+  if (units >= 6 && yb && yb < 1974) return { level: "likely", chip: "Likely rent stabilized", text: `Buildings with six or more apartments built before 1974 are generally rent stabilized. This one has ${units} apartments and was built in ${yb}. Some units were deregulated before 2019 and stayed market-rate, so ask whether this apartment is stabilized and look for the rider attached to the lease.` };
+  if (units >= 6 && yb >= 1974) return { level: "maybe", chip: "Maybe rent stabilized", text: `Buildings from ${yb} are stabilized only if the owner took a tax break such as 421-a or J-51 in exchange. Ask the landlord directly; a stabilized lease must come with a rider.` };
+  if (units > 0 && units < 6) return { level: "unlikely", chip: "Probably not stabilized", text: `Buildings with fewer than six apartments usually aren't rent stabilized. This one has ${units}.${hasReg ? "" : ""}` };
+  return null;
+}
+
+function analyzeNearby(R) {
+  const nb = R.raw.nearby;
+  const rows = nb.ok ? nb.rows : null;
+  R.nearbyError = nb.error || null;
+  if (rows) {
+    const noise = rows.filter(r => String(r.complaint_type || "").startsWith("Noise"));
+    const total = noise.reduce((a, r) => a + N(r.n), 0);
+    const byD = {}; noise.forEach(r => { const k = noiseLabel(r.complaint_type, r.descriptor); byD[k] = (byD[k] || 0) + N(r.n); });
+    const above = shareAbove(total, BASE.NOISE), below = shareBelow(total, BASE.NOISE);
+    const s = below >= 0.9 ? "bad" : below >= 0.75 ? "warn" : "ok";
+    const byType = {}; rows.forEach(r => { byType[r.complaint_type] = (byType[r.complaint_type] || 0) + N(r.n); });
+    R.noise = { total, top: Object.entries(byD).sort((a, b) => b[1] - a[1]).slice(0, 6), above, below, s,
+      types: Object.entries(byType).sort((a, b) => b[1] - a[1]).slice(0, 8) };
+  }
+  // Rats: 311 rodent complaints nearby + city inspections at this property
+  const rod = rows ? rows.filter(r => r.complaint_type === "Rodent") : null;
+  const rodTotal = rod ? rod.reduce((a, r) => a + N(r.n), 0) : null;
+  const insp = R.rodentProp || [];
+  const ratHits = insp.filter(r => /rat activity/i.test(r.result || ""));
+  const recentHit = ratHits.some(r => new Date(r.inspection_date) >= yearsAgo(1, R.now));
+  if (rod || (R.rodentProp && !nb.pending)) {
+    const below = rodTotal != null ? shareBelow(rodTotal, BASE.ROD) : null;
+    let s = "ok";
+    if (recentHit || (below != null && below >= 0.9)) s = "bad";
+    else if (ratHits.length || (below != null && below >= 0.75)) s = "warn";
+    const byD = {}; (rod || []).forEach(r => { byD[r.descriptor] = (byD[r.descriptor] || 0) + N(r.n); });
+    R.rats = { total: rodTotal, below, above: rodTotal != null ? shareAbove(rodTotal, BASE.ROD) : null, insp, ratHits, recentHit, s, top: Object.entries(byD).sort((a, b) => b[1] - a[1]) };
+  }
+}
+
+function noiseLabel(type, d) {
+  const where = type === "Noise - Residential" ? "From an apartment" : type === "Noise - Street/Sidewalk" ? "Street or sidewalk" : type === "Noise - Commercial" ? "From a business" : type === "Noise - Vehicle" ? "Vehicle" : type === "Noise - Helicopter" ? "Helicopter" : type === "Noise - Park" ? "Park" : type === "Noise - House of Worship" ? "House of worship" : "Other";
+  const what = String(d || "").replace(/\s*\(.*\)\s*/, "").replace(/^Noise[,:]?\s*/i, "").trim();
+  return where === "Other" ? (what ? what[0].toUpperCase() + what.slice(1).toLowerCase() : "Other") : `${where}: ${what.toLowerCase()}`;
+}
+
+const ORDER = ["viol", "heat", "bugs", "evict", "law", "watch", "dob", "noise", "rats"];
+function tally(R) {
+  R.counts = { bad: 0, warn: 0, ok: 0, none: 0 };
+  R.pendingChecks = ORDER.filter(k => isPending(R, k)).length;
+  ORDER.forEach(k => { if (isPending(R, k)) return; const s = R[k] ? R[k].s : "none"; R.counts[s]++; });
+}
+
+/* ---------- view helpers ---------- */
+const $ = s => document.querySelector(s);
+function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+const fmt = n => Number(n).toLocaleString("en-US");
+const dfmt = d => new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+const STATUS = { ok: "Clear", warn: "Ask about it", bad: "Concern", none: "No data" };
+const pill = s => `<span class="pill s-${s}">${STATUS[s]}</span>`;
+const plural = (n, one, many) => `${fmt(n)} ${n === 1 ? one : (many || one + "s")}`;
+function season(y) { return `${String(y).slice(2)}–${String(y + 1).slice(2)}`; }
+function titleCase(s) { return String(s || "").toLowerCase().replace(/(^|[\s/(-])\w/g, c => c.toUpperCase()); }
+const pct = x => Math.round(x * 100) + "%";
+
+function cmpRental(v, b, s) {
+  if (v <= 0) return `None, like ${pct((b.n - b.v.length) / b.n)} of NYC rental buildings`;
+  if (s === "ok") return "";
+  return `More than ${pct(shareBelow(v, b))} of NYC rental buildings`;
+}
+const w = (n, one, many) => n === 1 ? one : many;
+function cmpBlock(below, above, more, fewer) {
+  if (below >= 0.5) return `${more} ${pct(below)} of rental blocks`;
+  return `${fewer} ${pct(above)} of rental blocks`;
+}
+
+function cleanNov(t) {
+  let s = String(t || "").replace(/\s+/g, " ").trim();
+  const m = s.match(/\b(ABATE|REPAIR|PROVIDE|REMOVE|PROPERLY|TRACE|REPLACE|FILE|ARRANGE|POST|INSTALL|MAINTAIN|PAINT|CORRECT|ERADICATE|OBTAIN|DISCONTINUE|REGISTER|RESTORE|SECURE|REFRAIN|CERTIFY|MAKE|SUBMIT|SUPPLY|RENDER|REFINISH|FURNISH)\b/);
+  if (m) s = s.slice(m.index);
+  s = s.toLowerCase().replace(/(^\w)/, c => c.toUpperCase());
+  s = s.replace(/\b(\d+)(st|nd|rd|th) story\b/g, "$1$2 floor");
+  return s.length > 150 ? s.slice(0, 147).replace(/\s\S*$/, "") + "…" : s;
+}
+function cleanEcb(t) {
+  let s = String(t || "").replace(/\s+/g, " ").replace(/^[\w\s,.-]*?\d{2}[A-Z]\d{2}[.,]?\s*/, "").replace(/^\d{2}-[A-Z]-\d{2}\s*/, "").trim();
+  s = s.toLowerCase().replace(/(^\w)/, c => c.toUpperCase());
+  return s.length > 140 ? s.slice(0, 137).replace(/\s\S*$/, "") + "…" : (s || "No description");
+}
+
+function bars(data, opts = {}) {
+  const W = 520, H = 150, pad = { t: 18, r: 4, b: 22, l: 4 };
+  const max = Math.max(1, ...data.map(d => d.n));
+  const bw = (W - pad.l - pad.r) / data.length;
+  const ih = H - pad.t - pad.b;
+  const col = opts.color || "var(--accent)";
+  let g = `<line x1="${pad.l}" x2="${W - pad.r}" y1="${H - pad.b}" y2="${H - pad.b}" stroke="var(--line)"/>`;
+  data.forEach((d, i) => {
+    const h = d.n ? Math.max(2, (d.n / max) * ih) : 0;
+    const x = pad.l + i * bw + bw * 0.18, w = bw * 0.64, y = H - pad.b - h;
+    g += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" fill="${d.ghost ? "none" : col}" ${d.ghost ? `stroke="${col}" stroke-width="1.5" stroke-dasharray="4 3"` : ""} rx="2"/>`;
+    g += `<text class="val" x="${(x + w / 2).toFixed(1)}" y="${(y - 5).toFixed(1)}" text-anchor="middle">${fmt(d.n)}</text>`;
+    g += `<text x="${(x + w / 2).toFixed(1)}" y="${H - 6}" text-anchor="middle">${esc(d.label)}</text>`;
+  });
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(opts.label || "")}">${g}</svg>`;
+}
+function hbars(entries, color) {
+  const max = Math.max(1, ...entries.map(e => e[1]));
+  return `<ul class="hbars">${entries.map(([k, n]) => `<li><span class="lab">${esc(k)}</span><span class="n">${fmt(n)}</span><span class="bar"><i style="width:${(n / max * 100).toFixed(1)}%;${color ? `--b:${color}` : ""}"></i></span></li>`).join("")}</ul>`;
+}
+
+/* ---------- render ---------- */
+function placeTitle(place) { return esc(place.street) + (place.apt ? ` <small>Apt ${esc(normApt(place.apt))}</small>` : ""); }
+
+function renderLoading(place) {
+  $("#out").innerHTML = `
+    <section class="bldg">
+      <p class="eyebrow">${esc(place.borough || "")}${place.hood ? " · " + esc(place.hood) : ""}</p>
+      <h1 class="addr">${placeTitle(place)}</h1>
+      <p class="loading">Pulling city records for BBL <span class="mono">${esc(place.bbl)}</span>…</p>
+    </section>
+    <section class="verdict"><div class="verdict-head"><div class="skel" style="width:60%"></div></div>
+      <div class="checks">${Array(9).fill('<div class="check s-none"><div class="skel" style="width:50%"></div><div class="skel" style="width:30%;height:26px"></div><div class="skel"></div></div>').join("")}</div>
+    </section>`;
+}
+
+function headline(R) {
+  const { bad, warn, ok, none } = R.counts;
+  if (!R.pendingChecks && bad + warn + ok === 0) return ["Couldn't load the city's records", "NYC Open Data isn't answering right now. Try again in a minute."];
+  const more = R.pendingChecks ? ` Still loading ${plural(R.pendingChecks, "check")}.` : "";
+  if (R.pendingChecks && bad + warn + ok === 0) return ["Pulling the city's records", more.trim()];
+  if (R.pendingChecks && bad + warn === 0) return ["Nothing alarming so far", more.trim()];
+  const [h, sub] = headlineCore(R);
+  return [h, sub + (none ? ` ${plural(none, "check")} couldn't load.` : "") + more];
+}
+function headlineCore(R) {
+  const { bad, warn, ok } = R.counts;
+  if (bad >= 2) return ["Serious red flags in the city's records", `${bad} concerns and ${plural(warn, "thing")} to ask about.`];
+  if (bad === 1) return ["One real concern, worth a hard question", warn ? `Plus ${plural(warn, "thing")} to ask about.` : "Everything else looks clear."];
+  if (warn >= 3) return ["A mixed record. Ask before you sign", `${plural(warn, "thing")} to ask the landlord about.`];
+  if (warn) return ["Mostly clean, with something to ask about", `${plural(warn, "thing")} worth raising, ${ok} clear.`];
+  return ["Nothing alarming in the city's records", "Every check came back clear. Still visit at night, and in winter if you can."];
+}
+
+function cards(R) {
+  const C = [];
+  const card = (id, title, s, big, line, cmp) => C.push(`<a class="check s-${s}" href="#${id}" data-jump="${id}"><h3>${title}</h3><span class="big num">${big}</span><p>${line}</p>${cmp ? `<p class="cmp">${cmp}</p>` : "<span></span>"}${pill(s)}</a>`);
+  const na = (id, title, why) => card(id, title, "none", "—", why || "Couldn't load this record.");
+  const pend = (id, title) => C.push(`<a class="check s-none" href="#${id}" data-jump="${id}"><h3>${title}</h3><span class="big">…</span><p>${id === "block" ? "Checking 311 records around the building." : "Loading city records…"}</p><span></span><span class="pill s-none">Loading</span></a>`);
+
+  const P = (k, id, title) => isPending(R, k) ? (pend(id, title), true) : false;
+  P("viol", "violations", "Hazardous violations") || (R.viol ? card("violations", "Hazardous violations", R.viol.s, fmt(R.viol.open.C), `open Class C “immediately hazardous”${R.unitsKnown && R.viol.open.C ? ` · ${R.viol.rate.toFixed(2)} per unit` : ""}`, R.unitsKnown ? cmpRental(R.viol.rate, BASE.C, R.viol.s) : "") : na("violations", "Hazardous violations"));
+  P("heat", "heat", "Heat & hot water") || (R.heat ? card("heat", "Heat & hot water", R.heat.s, fmt(R.heat.last.n), `${w(R.heat.last.n, "complaint", "complaints")} last winter (${season(R.heat.last.y)})`, R.unitsKnown ? cmpRental(R.heat.per, BASE.H, R.heat.s) : "") : na("heat", "Heat & hot water"));
+  P("bugs", "bedbugs", "Bedbugs") || (R.bugs ? (R.bugs.f ? card("bedbugs", "Bedbugs", R.bugs.s, fmt(R.bugs.inf), `infested ${w(R.bugs.inf, "unit", "units")} in the latest yearly filing${R.bugs.stale ? " (an old one)" : ""}`, R.bugs.re ? `${plural(R.bugs.re, "unit")} re-infested after treatment` : "") : card("bedbugs", "Bedbugs", "none", "—", "No bedbug filing on record for this building.")) : na("bedbugs", "Bedbugs"));
+  P("evict", "evictions", "Evictions") || (R.evict ? card("evictions", "Evictions", R.evict.s, fmt(R.evict.recent), `marshal ${w(R.evict.recent, "eviction", "evictions")} since ${R.evict.y0} · ${fmt(R.evict.total)} since 2017`, R.unitsKnown ? cmpRental(R.evict.per, BASE.E, R.evict.s) : "") : na("evictions", "Evictions"));
+  P("law", "lawsuits", "HPD lawsuits") || (R.law ? card("lawsuits", "HPD lawsuits", R.law.s, R.law.harass.length ? "Harassment" : fmt(R.law.recent.length), R.law.harass.length ? "a court found tenant harassment" : `cases opened in the last 3 years${R.law.open.length ? ` · ${R.law.open.length} still open` : ""}`) : na("lawsuits", "HPD lawsuits"));
+  P("watch", "watch", "City watch lists") || (R.watch ? card("watch", "City watch lists", R.watch.s, R.watch.flagged.length ? plural(R.watch.flagged.length, "flag") : "None",
+    R.watch.flagged.length ? R.watch.flagged.map(l => l.name.replace(/ \(.*\)/, "")).filter((v, i, a) => a.indexOf(v) === i).join(" · ") : "Not on any distressed-building, vacate or harassment list") : na("watch", "City watch lists"));
+  if (isPending(R, "dob")) pend("dob", "Building safety");
+  else if (R.dob && R.dob.noBin) na("dob", "Building safety", "No building ID for this address, so DOB records can't be matched.");
+  else if (R.dob) {
+    const b = R.dob.boiler;
+    card("dob", "Building safety", R.dob.s, fmt(R.dob.ecbHaz.length + R.dob.dv.length), `open hazardous or no-permit DOB violations · ${plural(R.dob.comps.length, "complaint")} in 2 years`,
+      b ? (b.ageMonths > 18 ? `Boiler last inspected ${dfmt(b.newest)}` : b.defects ? "Boiler inspection found defects" : "Boiler inspected, no defects") : "");
+  } else na("dob", "Building safety");
+  P("noise", "block", "Noise on the block") || (R.noise ? card("block", "Noise on the block", R.noise.s, fmt(R.noise.total), `311 noise ${w(R.noise.total, "complaint", "complaints")} within 150 m, past year`, cmpBlock(R.noise.below, R.noise.above, "Louder than", "Quieter than")) : na("block", "Noise on the block", R.nearbyError ? "Couldn't load 311 records nearby." : ""));
+  P("rats", "block", "Rats on the block") || (R.rats ? card("block", "Rats on the block", R.rats.s, R.rats.total != null ? fmt(R.rats.total) : "—", (R.rats.recentHit ? `rodent ${w(R.rats.total, "complaint", "complaints")} nearby · <b>rats found at this property</b> in the past year` : `311 rodent ${w(R.rats.total, "complaint", "complaints")} within 150 m, past year${R.rats.ratHits.length ? " · rats found at this property in the past 2 years" : ""}`),
+      R.rats.below != null ? cmpBlock(R.rats.below, R.rats.above, "More than", "Fewer than") : "") : na("block", "Rats on the block"));
+  return C.join("");
+}
+
+function render(R, place) {
+  CUR_R = R;
+  const p = R.raw.pluto.ok && R.raw.pluto.rows[0];
+  const [h1, sub] = headline(R);
+  const facts = [];
+  if (p && N(p.unitsres)) facts.push(`<li><b class="num">${fmt(N(p.unitsres))}</b> apartments</li>`);
+  if (p && N(p.numfloors)) facts.push(`<li><b class="num">${Math.round(N(p.numfloors))}</b> floors</li>`);
+  if (p && N(p.yearbuilt)) facts.push(`<li>Built <b class="num">${N(p.yearbuilt)}</b></li>`);
+  facts.push(`<li>BBL <b class="mono">${esc(place.bbl)}</b></li>`);
+  if (R.stab && !isPending(R, "stab")) facts.push(`<li class="stab"><a href="#stab" data-jump="stab">${esc(R.stab.chip)}</a></li>`);
+
+  let aptline = "";
+  if (R.apt) {
+    const a = R.apt;
+    aptline = `<div class="aptline"><b>Apartment ${esc(a.label)}:</b> ${plural(a.violOpen.length, "open violation")}, ${plural(a.complaints, "complaint")} to HPD${a.since ? ` since ${new Date(a.since).getFullYear()}` : ""}${a.evictions.length ? `, ${plural(a.evictions.length, "eviction")}` : ""}. <a href="#apt" data-jump="apt">See details</a></div>`;
+  }
+
+  $("#out").innerHTML = `
+    <section class="bldg">
+      <p class="eyebrow">${place.example ? '<span class="example">Example</span> · ' : ""}${esc(place.borough || "")}${place.hood ? " · " + esc(place.hood) : ""}${p && p.zipcode ? " · " + esc(p.zipcode) : ""}</p>
+      <h1 class="addr">${placeTitle(place)}</h1>
+      <ul class="facts">${facts.join("")}</ul>
+    </section>
+    <section class="verdict" aria-label="Summary">
+      <div class="verdict-head">
+        <div class="vt"><h2>${h1}</h2><p>${sub}</p></div>
+        <div class="actions">
+          <button type="button" id="copySum">Copy summary</button>
+          ${/^https?:$/.test(location.protocol) ? '<button type="button" id="copyLink">Copy link</button>' : ""}
+          <button type="button" id="printBtn">Print</button>
+        </div>
+      </div>
+      ${aptline}
+      <div class="checks">${cards(R)}</div>
+    </section>
+    <div class="grid">
+      ${place.apt ? S("apt", "apt", `Apartment ${esc(normApt(place.apt))}`, true, secApt) : ""}
+      ${S("viol", "violations", "Open HPD violations", true, secViolations)}
+      ${S("heat", "heat", "Heat and hot water", false, secHeat)}
+      ${S("bugs", "bedbugs", "Bedbugs", false, secBugs)}
+      ${S("evict", "evictions", "Residential evictions", false, secEvict)}
+      ${S("law", "lawsuits", "HPD lawsuits", false, secLaw)}
+      ${S("watch", "watch", "City watch lists", false, secWatch)}
+      ${S("dob", "dob", "Building safety", false, secDob)}
+      ${secBlock(R)}
+      ${S("stab", "stab", "Rent stabilization", false, secStab)}
+      ${S("owner", "owner", "Who you'd rent from", false, secOwner)}
+      ${secAsk(R)}
+    </div>`;
+  $("#copySum").onclick = () => copyText(summaryText(R, place), "Summary copied");
+  const cl = $("#copyLink"); if (cl) cl.onclick = () => copyText(location.href, "Link copied");
+  $("#printBtn").onclick = () => window.print();
+}
+
+function S(k, id, title, wide, fn) {
+  if (!isPending(CUR_R, k)) return fn(CUR_R, CUR_R.place);
+  return `<section class="sec${wide ? " wide" : ""}" id="${id}"><h2>${title}<span class="pill s-none">Loading</span></h2><div class="skel" style="width:80%"></div><div class="skel" style="width:55%"></div></section>`;
+}
+let CUR_R = null;
+function errSec(id, title, raw) { return `<section class="sec" id="${id}"><h2>${title}${pill("none")}</h2><p class="err">Couldn't load this from NYC Open Data. ${esc(raw && raw.error || "")} Try again in a minute.</p></section>`; }
+
+function secApt(R) {
+  if (!R.place.apt) return "";
+  if (!R.apt) return `<section class="sec wide apt" id="apt"><h2>Apartment ${esc(normApt(R.place.apt))}</h2><p class="err">Couldn't load apartment records. Try again in a minute.</p></section>`;
+  const a = R.apt;
+  const none = !a.viol.length && !a.complaints && !a.evictions.length;
+  return `<section class="sec wide apt" id="apt">
+    <h2>Apartment ${esc(a.label)}</h2>
+    ${none ? `<p>No HPD violations, complaints or evictions are recorded for apartment ${esc(a.label)}. Check the number is written the way the building writes it (for example 4B, 4-B or 4R).</p>` : `
+    <div class="classbar">
+      <div class="cls ${a.violOpen.some(v => v.class === "C") ? "hot" : ""}"><span class="k">OPEN VIOLATIONS</span><span class="v num">${fmt(a.violOpen.length)}</span><span class="d">${fmt(a.violOpen.filter(v => v.class === "C").length)} immediately hazardous · ${fmt(a.viol.length)} ever</span></div>
+      <div class="cls"><span class="k">COMPLAINTS TO HPD</span><span class="v num">${fmt(a.complaints)}</span><span class="d">${a.since ? `since ${dfmt(a.since)}` : "none on record"}</span></div>
+      <div class="cls"><span class="k">HEAT COMPLAINTS</span><span class="v num">${fmt(a.heat3)}</span><span class="d">in the last 3 winters</span></div>
+    </div>
+    <div class="cols">
+      <div>${a.cats.length ? `<h3>What tenants of ${esc(a.label)} complained about</h3>${hbars(a.cats.slice(0, 6).map(([k, n]) => [titleCase(k), n]))}` : ""}</div>
+      <div>${a.violOpen.length ? `<h3>Open violations in this apartment</h3><ul class="list">${a.violOpen.slice(0, 6).map(r => `<li><span class="tagc ${esc(r.class)}">${esc(r.class)}</span><span>${esc(cleanNov(r.novdescription))}</span><span class="meta">${dfmt(r.inspectiondate)}</span></li>`).join("")}</ul>` : `<p class="note">No open violations in this apartment.</p>`}
+      ${a.evictions.length ? `<p><b>Evictions from this apartment:</b> ${a.evictions.map(e => dfmt(e.executed_date)).join(", ")}.</p>` : ""}</div>
+    </div>`}
+  </section>`;
+}
+
+function secViolations(R) {
+  if (!R.viol) return errSec("violations", "Open HPD violations", R.raw.violCounts);
+  const v = R.viol, rows = R.raw.violRecent.ok ? R.raw.violRecent.rows : [];
+  const total = v.all.A + v.all.B + v.all.C + (v.all.I || 0);
+  return `<section class="sec wide" id="violations">
+    <h2>Open HPD violations ${pill(v.s)}</h2>
+    <p>HPD issues violations when an inspector confirms a problem. Open ones haven't been certified as fixed. ${v.lastYear != null ? `${plural(v.lastYear, "violation was", "violations were")} issued in the past 12 months, out of ${fmt(total)} on record.` : ""}</p>
+    <div class="classbar">
+      <div class="cls"><span class="k">CLASS A</span><span class="v num">${fmt(v.open.A)}</span><span class="d">Non-hazardous. 90 days to fix.</span></div>
+      <div class="cls"><span class="k">CLASS B</span><span class="v num">${fmt(v.open.B)}</span><span class="d">Hazardous. 30 days to fix.</span></div>
+      <div class="cls hot"><span class="k">CLASS C</span><span class="v num">${fmt(v.open.C)}</span><span class="d">Immediately hazardous. 24 hours to fix.</span></div>
+    </div>
+    ${rows.length ? `<ul class="list">${rows.map(r => `<li><span class="tagc ${esc(r.class)}">${esc(r.class)}</span><span>${esc(cleanNov(r.novdescription))}</span><span class="meta">${dfmt(r.inspectiondate)}${r.apartment ? ` · Apt ${esc(r.apartment)}` : ""}</span></li>`).join("")}</ul><p class="note">Most recent open Class B and C violations. Many old violations stay “open” only because no one filed the paperwork; recent ones matter most.</p>` : `<p class="note">No open hazardous violations.</p>`}
+  </section>`;
+}
+
+function secHeat(R) {
+  if (!R.heat) return errSec("heat", "Heat and hot water", R.raw.heat);
+  const h = R.heat;
+  const data = h.bars.map(b => ({ label: b.current ? season(b.y) + "*" : season(b.y), n: b.n, ghost: b.current }));
+  const tops = R.raw.complaints.ok ? R.raw.complaints.rows : [];
+  return `<section class="sec" id="heat">
+    <h2>Heat and hot water ${pill(h.s)}</h2>
+    <p>Unique heat complaints to HPD each heat season (Oct 1 – May 31). Landlords must keep apartments at 68°F by day when it's under 55°F outside, and 62°F overnight all season.</p>
+    ${bars(data, { label: "Heat complaints by season", color: "var(--bad)" })}
+    <p class="note">* Season in progress, counted since Oct 1.${R.unitsKnown ? ` Last full winter works out to ${h.per.toFixed(2)} complaints per apartment.` : ""}</p>
+    ${tops.length ? `<p><b>Problems tenants reported to HPD in the past year:</b> ${tops.map(t => `${esc(titleCase(t.major_category))} <span class="num">(${fmt(N(t.n))})</span>`).join(" · ")}</p>` : ""}
+  </section>`;
+}
+
+function secBugs(R) {
+  if (!R.bugs) return errSec("bedbugs", "Bedbugs", R.raw.bedbugs);
+  const b = R.bugs;
+  if (!b.f) return `<section class="sec" id="bedbugs"><h2>Bedbugs ${pill("none")}</h2><p>Landlords of buildings with three or more units must file a bedbug report every year. There's no filing on record here, which may mean the building isn't required to file, or the owner didn't.</p></section>`;
+  return `<section class="sec" id="bedbugs">
+    <h2>Bedbugs ${pill(b.s)}</h2>
+    <p>From the owner's annual filing for ${dfmt(b.f.filing_period_start_date)} – ${dfmt(b.f.filling_period_end_date)}.${b.stale ? " This is the most recent filing, and it's out of date, so ask whether a newer one was made." : ""}</p>
+    <dl class="kv">
+      <dt>Infested apartments</dt><dd class="num">${fmt(b.inf)}</dd>
+      <dt>Treated and cleared</dt><dd class="num">${fmt(N(b.f.eradicated_unit_count))}</dd>
+      <dt>Re-infested after treatment</dt><dd class="num">${fmt(b.re)}</dd>
+    </dl>
+    ${b.history.length > 1 ? `<p class="note">Earlier filings: ${b.history.slice(1).map(f => `${new Date(f.filling_period_end_date).getFullYear()}: ${fmt(N(f.infested_dwelling_unit_count))} infested`).join(" · ")}</p>` : ""}
+    <p class="note">These numbers are self-reported by the owner.</p>
+  </section>`;
+}
+
+function secEvict(R) {
+  if (!R.evict) return errSec("evictions", "Evictions", R.raw.evictions);
+  const e = R.evict, y1 = R.now.getFullYear();
+  const data = []; for (let y = 2017; y <= y1; y++) { const m = e.byYear.find(r => r.y === y); data.push({ label: "’" + String(y).slice(2), n: m ? m.n : 0 }); }
+  return `<section class="sec" id="evictions">
+    <h2>Residential evictions ${pill(e.s)}</h2>
+    <p>Evictions carried out by city marshals at this building, by year. ${e.total ? `${plural(e.total, "eviction")} since 2017.` : "None recorded since 2017."}</p>
+    ${bars(data, { label: "Marshal evictions by year" })}
+    <p class="note">Includes only evictions a marshal executed, not cases that settled or tenants who left under pressure.</p>
+  </section>`;
+}
+
+function secLaw(R) {
+  if (!R.law) return errSec("lawsuits", "HPD lawsuits", R.raw.litigation);
+  const L = R.law, rows = L.rows.slice(0, 6);
+  return `<section class="sec" id="lawsuits">
+    <h2>HPD lawsuits ${pill(L.s)}</h2>
+    <p>Housing Court cases brought by HPD, or by tenants with HPD as a party. ${L.harass.length ? `<b>A court found harassment in ${plural(L.harass.length, "case")}.</b>` : ""} ${L.rows.length ? `${plural(L.rows.length, "case")} on record${L.rows.length >= 40 ? " (showing the latest)" : ""}.` : "No cases on record."}</p>
+    ${rows.length ? `<ul class="list">${rows.map(r => `<li><span class="tagc wide ${/inquest|trial/i.test(r.findingofharassment || "") ? "C" : /pend|open/i.test(r.casestatus || "") ? "B" : "x"}">${esc((r.casestatus || "").slice(0, 7))}</span><span>${esc(r.casetype)}${r.findingofharassment ? ` (${esc(r.findingofharassment)})` : ""}</span><span class="meta">Opened ${dfmt(r.caseopendate)}${r.casejudgement === "YES" ? " · Judgment" : ""}</span></li>`).join("")}</ul>` : ""}
+  </section>`;
+}
+
+function secWatch(R) {
+  if (!R.watch) return errSec("watch", "City watch lists", R.raw.aep);
+  const w = R.watch;
+  return `<section class="sec" id="watch">
+    <h2>City watch lists ${pill(w.s)}</h2>
+    <p>The city keeps lists of buildings with serious problems: HPD's program for the most distressed buildings, vacate orders, the no-harassment certification list, and the Speculation Watch List.</p>
+    ${w.lists.length ? `<ul class="watch">${w.lists.map(l => `<li>${pill(l.s)}<div><b>${esc(l.name)}</b><span class="t">${esc(l.text)}</span></div></li>`).join("")}</ul>` : `<p class="note">This building isn't on any of them.</p>`}
+  </section>`;
+}
+
+function secDob(R) {
+  const d = R.dob;
+  if (!d) return errSec("dob", "Building safety", R.raw.dobComp);
+  if (d.noBin) return `<section class="sec" id="dob"><h2>Building safety ${pill("none")}</h2><p>The address search didn't return a building ID, so Department of Buildings records can't be matched to it.</p></section>`;
+  const groups = Object.entries(d.groups).sort((a, b) => (a[0] === "Other") - (b[0] === "Other") || b[1] - a[1]);
+  const b = d.boiler;
+  const bin = R.place.bin;
+  return `<section class="sec" id="dob">
+    <h2>Building safety ${pill(d.s)}</h2>
+    <p>Records from the Department of Buildings, which handles structural safety, elevators, boilers, gas, exits and illegal apartments.</p>
+    <div class="classbar">
+      <div class="cls ${d.ecbHaz.length ? "hot" : ""}"><span class="k">HAZARDOUS</span><span class="v num">${fmt(d.ecbHaz.length)}</span><span class="d">open ECB violations${d.balance ? ` · $${fmt(Math.round(d.balance))} in unpaid penalties` : ""}</span></div>
+      <div class="cls ${d.dvHaz.length ? "hot" : ""}"><span class="k">NO PERMIT</span><span class="v num">${fmt(d.dv.length)}</span><span class="d">open DOB violations for hazards or work without a permit</span></div>
+      <div class="cls"><span class="k">COMPLAINTS</span><span class="v num">${fmt(d.comps.length)}</span><span class="d">to DOB in the past 2 years</span></div>
+    </div>
+    ${groups.length ? `<h3>What people complained to DOB about</h3>${hbars(groups.slice(0, 6), d.illegal ? "var(--warn)" : "")}` : ""}
+    ${d.illegal ? `<p class="note">Illegal-conversion complaints often mean apartments were split or basements rented without approval. Make sure the unit you're seeing is a legal apartment.</p>` : ""}
+    ${d.ecbHaz.length ? `<h3>Open hazardous violations</h3><ul class="list">${d.ecbHaz.slice(0, 4).map(r => `<li><span class="tagc C">${esc(r.violation_type || "ECB")}</span><span>${esc(cleanEcb(r.violation_description))}</span><span class="meta">Issued ${dfmt(ymdDate(r.issue_date) || r.issue_date)}</span></li>`).join("")}</ul>` : ""}
+    <p><b>Boiler:</b> ${b ? `${b.count > 1 ? `${b.count} boilers on file; most recent` : "Most recent"} inspection ${dfmt(b.newest)}${b.defects ? `, <b>defects found</b>` : ", no defects"}.${b.ageMonths > 18 ? " That's more than a year and a half ago, and boilers in apartment buildings need an inspection every year." : ""}` : "No boiler inspection on file. The building may share a boiler with a neighbor or use district steam, or the inspection was never filed."}</p>
+    ${bin ? `<div class="links"><a href="https://a810-bisweb.nyc.gov/bisweb/PropertyProfileOverviewServlet?bin=${esc(bin)}" target="_blank" rel="noopener">DOB building profile ↗</a></div>` : ""}
+  </section>`;
+}
+
+function secBlock(R) {
+  if (isPending(R, "noise") || isPending(R, "rats")) return `<section class="sec wide" id="block"><h2>The block</h2><p class="loading">Checking 311 complaints within 150 meters…</p><div class="skel" style="width:70%"></div></section>`;
+  const n = R.noise, r = R.rats;
+  const noiseCol = n ? `<div>
+      <h3>Noise ${pill(n.s)}</h3>
+      <p><b class="num">${fmt(n.total)}</b> noise complaints to 311 within 150 m in the past year. ${cmpBlock(n.below, n.above, "Louder than", "Quieter than")}; a typical one gets about ${medianOf(BASE.NOISE)}.</p>
+      ${n.top.length ? hbars(n.top) : ""}
+      ${R.bldgNoise ? `<p class="note">${R.bldgNoise.length ? `Inside this building: ${plural(R.bldgNoise.reduce((a, x) => a + x.n, 0), "noise complaint")} in the past year, mostly ${esc(R.bldgNoise[0].d.toLowerCase())}.` : "No noise complaints were made from inside this building in the past year."}</p>` : ""}
+    </div>` : `<div><h3>Noise ${pill("none")}</h3><p class="err">${esc(R.nearbyError || "Couldn't load 311 records nearby.")}</p></div>`;
+  const ratCol = r ? `<div>
+      <h3>Rats ${pill(r.s)}</h3>
+      ${r.total != null ? `<p><b class="num">${fmt(r.total)}</b> rodent complaints to 311 within 150 m in the past year. ${cmpBlock(r.below, r.above, "More than", "Fewer than")}; a typical one gets about ${medianOf(BASE.ROD)}.</p>${r.top.length ? hbars(r.top, "var(--warn)") : ""}` : ""}
+      <p>${r.insp.length ? `The Health Department inspected this property ${plural(r.insp.length, "time")} in the past 2 years and found rat activity ${r.ratHits.length ? `<b>${plural(r.ratHits.length, "time")}</b>, most recently ${dfmt(r.ratHits[0].inspection_date)}` : "none of those times"}.` : "The Health Department hasn't inspected this property for rats in the past 2 years."}</p>
+    </div>` : `<div><h3>Rats ${pill("none")}</h3><p class="err">Couldn't load rodent records.</p></div>`;
+  const types = n && n.types.length ? `<p class="note"><b>Most common 311 complaints within 150 m:</b> ${n.types.map(([k, v]) => `${esc(titleCase(k))} (${fmt(v)})`).join(" · ")}</p>` : "";
+  return `<section class="sec wide" id="block">
+    <h2>The block</h2>
+    <p>What neighbors reported to 311 within about a block in every direction, compared with the blocks around ${BASE.NOISE.n} randomly chosen NYC rental buildings.</p>
+    <div class="cols">${noiseCol}${ratCol}</div>
+    ${types}
+  </section>`;
+}
+
+function secStab(R) {
+  if (!R.stab) return "";
+  return `<section class="sec" id="stab">
+    <h2>Rent stabilization</h2>
+    <p><b>${esc(R.stab.chip)}.</b> ${esc(R.stab.text)}</p>
+    <p class="note">The state doesn't publish which apartments are stabilized, so this is an estimate from the building's age, size and type. A stabilized apartment's rent can only rise by the yearly Rent Guidelines Board increase, and you have the right to renew.</p>
+    <div class="links">
+      <a href="https://app.justfix.org/en/rh" target="_blank" rel="noopener">Request rent history (free) ↗</a>
+      <a href="https://www.nyc.gov/RentStabilization" target="_blank" rel="noopener">Rent stabilization guide ↗</a>
+    </div>
+  </section>`;
+}
+
+function secOwner(R, place) {
+  const o = R.owner;
+  const rows = [];
+  if (o && o.owner) rows.push(["Registered owner", o.owner]);
+  if (o && o.officer) rows.push(["Head officer", o.officer]);
+  if (o && o.agent) rows.push(["Managing agent", o.agent]);
+  if (o && o.site) rows.push(["Site manager", o.site]);
+  if (o && o.reg && o.reg.lastregistrationdate) rows.push(["Last registered with HPD", dfmt(o.reg.lastregistrationdate)]);
+  if (!rows.length && o && o.plutoOwner) rows.push(["Owner on tax records", o.plutoOwner]);
+  const bid = o && o.reg && o.reg.buildingid;
+  return `<section class="sec" id="owner">
+    <h2>Who you'd rent from</h2>
+    ${rows.length ? `<dl class="kv">${rows.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join("")}</dl>` : `<p>No HPD registration found. Rental buildings with three or more units must register every year, so ask the landlord why.</p>`}
+    <p class="note">Owners often hide behind a one-building LLC. The head officer and managing agent tell you more about who runs it.</p>
+    <div class="links">
+      <a href="https://whoownswhat.justfix.org/en/bbl/${esc(place.bbl)}" target="_blank" rel="noopener">Landlord's other buildings ↗</a>
+      ${bid ? `<a href="https://hpdonline.nyc.gov/hpdonline/building/${esc(bid)}" target="_blank" rel="noopener">HPD Online ↗</a>` : ""}
+    </div>
+  </section>`;
+}
+
+function questions(R) {
+  const q = [];
+  if (R.apt && R.apt.violOpen.length) q.push(`Apartment ${R.apt.label} has ${plural(R.apt.violOpen.length, "open violation")}. Will they be fixed before move-in?`);
+  if (R.heat && R.heat.s !== "ok") q.push(`There were ${plural(R.heat.last.n, "heat complaint")} last winter. Is the boiler new or serviced, and who do I call when the heat goes out at night?`);
+  if (R.viol && R.viol.open.C) q.push(`HPD shows ${plural(R.viol.open.C, "open Class C violation")}. Have they been fixed, and has the repair been certified with HPD?`);
+  if (R.bugs && R.bugs.inf) q.push(`The last bedbug filing reported ${plural(R.bugs.inf, "infested apartment")}. Was this unit or its neighbors treated?`);
+  if (R.evict && R.evict.recent) q.push(`There were ${plural(R.evict.recent, "eviction")} since ${R.evict.y0}. What led to them?`);
+  if (R.law && R.law.open.length) q.push(`HPD has an open court case against the building. What is it about?`);
+  if (R.watch && R.watch.activeVac.length) q.push(`There's a vacate order in effect. Which apartments does it cover, and why?`);
+  if (R.dob && R.dob.illegal) q.push(`DOB has received complaints about illegal conversions. Is this apartment on the building's certificate of occupancy?`);
+  if (R.dob && R.dob.boiler && R.dob.boiler.ageMonths > 18) q.push(`The last boiler inspection on file is from ${dfmt(R.dob.boiler.newest)}. Has it been inspected since?`);
+  if (R.rats && R.rats.s !== "ok") q.push(`Rats are reported around the building. How is garbage stored, and how often does an exterminator come?`);
+  if (R.noise && R.noise.s !== "ok") q.push(`The block gets a lot of noise complaints. Visit on a Friday or Saturday night before you sign.`);
+  if (R.stab && R.stab.level !== "unlikely") q.push("Is this apartment rent stabilized? If so, ask for the lease rider and request the rent history from the state to check the rent is legal.");
+  q.push("Ask a current tenant in the lobby or on the stoop what living there is like.");
+  return q;
+}
+
+function secAsk(R) {
+  return `<section class="sec wide" id="ask">
+    <h2>Questions to ask before you sign</h2>
+    <ol class="ask">${questions(R).map(x => `<li>${x}</li>`).join("")}</ol>
+  </section>`;
+}
+
+/* ---------- share ---------- */
+function summaryText(R, place) {
+  const [h1, sub] = headline(R);
+  const line = (t, k, v) => R[k] ? `• ${t}: ${v()} (${STATUS[R[k].s]})` : null;
+  const out = [
+    `NYC Renting: ${titleCase(place.street)}${place.apt ? ", Apt " + normApt(place.apt) : ""}, ${place.borough || ""} (BBL ${place.bbl})`,
+    `${h1}. ${sub}`, "",
+    line("Hazardous violations", "viol", () => `${fmt(R.viol.open.C)} open Class C`),
+    line("Heat", "heat", () => `${fmt(R.heat.last.n)} complaints last winter`),
+    line("Bedbugs", "bugs", () => R.bugs.f ? `${fmt(R.bugs.inf)} infested units in latest filing` : "no filing"),
+    line("Evictions", "evict", () => `${fmt(R.evict.recent)} since ${R.evict.y0}`),
+    line("HPD lawsuits", "law", () => R.law.harass.length ? "harassment finding" : `${fmt(R.law.recent.length)} cases in 3 years`),
+    line("City watch lists", "watch", () => R.watch.flagged.length ? R.watch.flagged.map(l => l.name).join(", ") : "none"),
+    line("Building safety (DOB)", "dob", () => R.dob.noBin ? "not matched" : `${plural(R.dob.ecbHaz.length + R.dob.dv.length, "open hazardous or no-permit violation")}, ${plural(R.dob.comps.length, "complaint")} in 2 years`),
+    line("Noise on the block", "noise", () => `${fmt(R.noise.total)} complaints in a year`),
+    line("Rats on the block", "rats", () => `${R.rats.total != null ? fmt(R.rats.total) + " complaints in a year" : ""}${R.rats.recentHit ? ", rats found at the property" : ""}`),
+  ].filter(x => x !== null);
+  if (R.apt) out.push(`• Apartment ${R.apt.label}: ${plural(R.apt.violOpen.length, "open violation")}, ${plural(R.apt.complaints, "complaint")} to HPD`);
+  if (R.stab) out.push(`• ${R.stab.chip}`);
+  if (/^https?:$/.test(location.protocol)) out.push("", location.href);
+  out.push("", "Source: NYC Open Data");
+  return out.join("\n");
+}
+let toastT;
+function toast(msg) {
+  let t = $(".toast"); if (!t) { t = document.createElement("div"); t.className = "toast"; t.setAttribute("role", "status"); document.body.appendChild(t); }
+  t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, 1800);
+}
+function copyText(text, ok) {
+  const fallback = () => { const ta = document.createElement("textarea"); ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0"; document.body.appendChild(ta); ta.select(); let done = false; try { done = document.execCommand("copy"); } catch {} ta.remove(); toast(done ? ok : "Couldn't copy. Select the text and copy it yourself."); };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(() => toast(ok), fallback);
+  else fallback();
+}
+/* Shareable link: #BBL-BIN-APT-STREET (plain token: letters, digits, _ and -) */
+function hashFor(place) {
+  const street = String(place.street || "").toUpperCase().replace(/[^A-Z0-9]+/g, "_").replace(/^_|_$/g, "");
+  return `${place.bbl}-${place.bin || 0}-${normApt(place.apt).replace(/[^A-Z0-9]/g, "")}${street ? "-" + street : ""}`;
+}
+function setHash(place) { try { history.replaceState(null, "", "#" + hashFor(place)); } catch {} }
+
+/* ---------- search ---------- */
+const sug = $("#sug"), input = $("#q"), aptIn = $("#apt");
+let items = [], active = -1, timer, ctl, lookupSeq = 0;
+
+function placeFromFeature(f) {
+  const p = f.properties, pad = (p.addendum && p.addendum.pad) || {};
+  const c = f.geometry && f.geometry.coordinates;
+  return { street: p.name || p.label, borough: p.borough, hood: p.neighbourhood, bbl: pad.bbl, bin: pad.bin, label: p.label, lat: c ? c[1] : null, lon: c ? c[0] : null };
+}
+function dedupe(features) {
+  const by = new Map();
+  features.map(placeFromFeature).filter(x => x.bbl && /^\d{10}$/.test(x.bbl)).forEach(x => {
+    const k = x.bbl + "|" + (x.street || "").split(" ")[0];
+    const prev = by.get(k);
+    if (!prev || (x.street || "").length > (prev.street || "").length) by.set(k, x);
+  });
+  return [...by.values()].slice(0, 6);
+}
+async function geo(path, text) {
+  if (ctl) ctl.abort();
+  ctl = new AbortController();
+  const r = await fetch(GEO + path + "?text=" + encodeURIComponent(text), { signal: ctl.signal });
+  if (!r.ok) throw new Error("Address search returned " + r.status);
+  return dedupe((await r.json()).features || []);
+}
+function showSug() {
+  sug.hidden = !items.length;
+  sug.innerHTML = items.map((x, i) => `<li role="option" id="o${i}" aria-selected="${i === active}" data-i="${i}"><span>${esc(x.street)}</span><small>${esc(x.borough || "")}</small></li>`).join("");
+}
+input.addEventListener("input", () => {
+  clearTimeout(timer);
+  const t = input.value.trim();
+  if (t.length < 3) { items = []; showSug(); return; }
+  timer = setTimeout(async () => { try { items = await geo("autocomplete", t); active = -1; showSug(); } catch (e) { if (e.name !== "AbortError") { items = []; showSug(); } } }, 180);
+});
+input.addEventListener("keydown", e => {
+  if (sug.hidden) return;
+  if (e.key === "ArrowDown") { active = Math.min(items.length - 1, active + 1); showSug(); e.preventDefault(); }
+  else if (e.key === "ArrowUp") { active = Math.max(0, active - 1); showSug(); e.preventDefault(); }
+  else if (e.key === "Escape") { items = []; showSug(); }
+});
+sug.addEventListener("mousedown", e => { const li = e.target.closest("li"); if (li) { e.preventDefault(); choose({ ...items[+li.dataset.i], apt: aptIn.value.trim() }); } });
+document.addEventListener("click", e => {
+  if (!e.target.closest(".search")) { items = []; showSug(); }
+  const j = e.target.closest("[data-jump]");
+  if (j) { e.preventDefault(); const t = document.getElementById(j.dataset.jump); if (t) t.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" }); }
+});
+$("#form").addEventListener("submit", async e => {
+  e.preventDefault();
+  const apt = aptIn.value.trim();
+  if (active >= 0 && items[active]) return choose({ ...items[active], apt });
+  const t = input.value.trim();
+  if (!t) { if (apt && current) choose({ ...current, apt, example: false }); return; }
+  if (current && t === displayName(current)) return choose({ ...current, apt, example: false });
+  try {
+    const res = await geo("search", t);
+    if (res.length) choose({ ...res[0], apt });
+    else $("#out").innerHTML = `<p class="err">Couldn't find “${esc(t)}”. Try the house number, street and borough, like “245 Eastern Parkway Brooklyn”.</p>`;
+  } catch (err) { if (err.name !== "AbortError") $("#out").innerHTML = `<p class="err">Address search isn't responding (${esc(err.message)}). Check your connection and try again.</p>`; }
+});
+
+let current = null;
+function displayName(place) { return place.street + (place.borough ? ", " + place.borough : ""); }
+
+async function choose(place) {
+  items = []; showSug();
+  current = place;
+  if (!place.example) { input.value = displayName(place); remember(place); setHash(place); }
+  aptIn.value = place.apt ? normApt(place.apt) : "";
+  const seq = ++lookupSeq, now = new Date();
+  renderLoading(place);
+  const draw = R => { if (seq !== lookupSeq) return; const y = window.scrollY; render(R, place); if (window.scrollY !== y) window.scrollTo(0, y); };
+  try { draw(await fetchReport(place, now, draw)); }
+  catch (e) { if (seq === lookupSeq) $("#out").innerHTML = `<p class="err">Something went wrong pulling records: ${esc(e.message)}</p>`; }
+}
+
+async function fromHash() {
+  const m = decodeURIComponent(location.hash.slice(1)).match(/^(\d{10})-(\d+)-([A-Za-z0-9]{0,8})(?:-([A-Za-z0-9_]+))?$/);
+  if (!m) return false;
+  const [, bbl, bin, apt, street] = m;
+  let place = { bbl, bin: bin === "0" ? "" : bin, apt: apt || "", street: street ? street.replace(/_/g, " ") : "BBL " + bbl, borough: BORO[bbl[0]] };
+  try {
+    const r = (await soda("64uk-42ks", { $where: `bbl=${bbl}`, $select: "address,latitude,longitude", $limit: 1 }, 15000))[0];
+    if (r) place = { ...place, street: street ? place.street : r.address, lat: r.latitude ? +r.latitude : null, lon: r.longitude ? +r.longitude : null };
+  } catch {}
+  choose(place);
+  return true;
+}
+
+/* recent lookups (this browser only) + examples */
+const EXAMPLES = [
+  { street: "245 EASTERN PARKWAY", borough: "Brooklyn", hood: "Crown Heights", bbl: "3011817501", bin: "3029652", lat: 40.671658, lon: -73.960286, example: true },
+  { street: "300 EAST 57 STREET", borough: "Manhattan", hood: "Midtown East", bbl: "1013490049", bin: "1039992", lat: 40.758947, lon: -73.96511, example: true },
+  { street: "1555 GRAND CONCOURSE", borough: "Bronx", hood: "Mount Eden", bbl: "2028360012", bin: "2008012", lat: 40.842209, lon: -73.912284, example: true },
+];
+function recent() { try { return JSON.parse(localStorage.getItem("nycr-recent") || "[]"); } catch { return []; } }
+function remember(p) {
+  if (p.example) return;
+  try {
+    const r = recent().filter(x => !(x.bbl === p.bbl && (x.apt || "") === (p.apt || "")));
+    r.unshift({ street: p.street, borough: p.borough, hood: p.hood, bbl: p.bbl, bin: p.bin, lat: p.lat, lon: p.lon, apt: p.apt || "" });
+    localStorage.setItem("nycr-recent", JSON.stringify(r.slice(0, 5)));
+  } catch {}
+  drawChips();
+}
+function drawChips() {
+  const r = recent();
+  const list = r.length ? r : EXAMPLES;
+  $("#chips").innerHTML = `<span>${r.length ? "Recent:" : "Try:"}</span>` + list.map((x, i) => `<button type="button" data-i="${i}">${esc(titleCase(x.street))}${x.apt ? " · " + esc(x.apt) : ""}</button>`).join("");
+  $("#chips").onclick = e => { const b = e.target.closest("button"); if (b) choose({ ...list[+b.dataset.i], example: false }); };
+}
+window.addEventListener("hashchange", fromHash);
+if (typeof window !== "undefined" && !window.__BYS_TEST__) {
+  drawChips();
+  fromHash().then(opened => { if (!opened) choose(EXAMPLES[0]); });
+}
+</script>
+</body>
+</html>
