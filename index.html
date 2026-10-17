@@ -252,7 +252,7 @@ footer p { margin: 0; max-width: 90ch; }
   <main id="out" aria-live="polite"></main>
 
   <footer>
-    <p>Data comes live from NYC Open Data: HPD violations, complaints, registrations, litigation, bedbug filings, vacate orders, the Alternative Enforcement Program and the Certification of No Harassment list; DOB complaints, violations, ECB violations and boiler inspections; DOHMH rodent inspections; 311 service requests; the Speculation Watch List; DOI marshal evictions; DCP PLUTO; and NYC Planning's GeoSearch.</p>
+    <p>Data comes live from NYC Open Data: HPD violations, complaints, registrations, legal unit counts, litigation, bedbug filings, vacate orders, the Alternative Enforcement Program and the Certification of No Harassment list; DOB complaints, violations, ECB violations, permits, after-hours variances and boiler inspections; ACRIS property records; DOHMH rodent inspections; 311 service requests; FloodNet sensors, the 2020s floodplain, the Sandy inundation zone and hurricane evacuation zones; the Speculation Watch List; DOI marshal evictions; DCP PLUTO; and NYC Planning's GeoSearch.</p>
     <p>Comparisons use a random sample of 220 NYC buildings with three or more apartments (90 for noise and rats), drawn in October 2026. “The block” means everything within 150 meters, about a block in each direction.</p>
     <p>HPD records mainly cover rental buildings with three or more units. Co-ops, condos and small homes may show little or nothing. A clean record is a good sign, not a guarantee.</p>
     <div class="sig">
@@ -332,7 +332,8 @@ const sqlList = arr => arr.map(x => `'${x.replace(/'/g, "''")}'`).join(",");
 const NEEDS = {
   viol: ["violCounts", "violRecent", "violYear"], heat: ["heat", "complaints"], bugs: ["bedbugs"], evict: ["evictions"], law: ["litigation"],
   watch: ["aep", "vacate", "conh", "spec"], dob: ["dobComp", "ecb", "dobViol", "boiler"], noise: ["nearby", "bldgNoise"], rats: ["nearby", "rodent"],
-  apt: ["aptViol", "aptComp", "aptEvict"], owner: ["reg", "contacts"], stab: ["pluto", "spec", "reg"],
+  apt: ["aptViol", "aptComp", "aptEvict"], owner: ["reg", "contacts", "sale"], stab: ["pluto", "spec", "reg"],
+  legal: ["hpdLegal", "pluto", "dobComp"], build: ["build", "buildLegacy", "ahv"], flood: ["fzone", "sandy", "evac", "floodnet", "nearby"],
 };
 const isPending = (R, k) => (NEEDS[k] || []).some(x => R.raw[x] && R.raw[x].pending);
 
@@ -350,6 +351,18 @@ function fetchReport(place, now, onUpdate) {
     violCounts: soda("wvxf-dwi5", { $where: W, $select: "class,violationstatus,count(*) as n", $group: "class,violationstatus" }),
     violRecent: soda("wvxf-dwi5", { $where: `${W} AND violationstatus='Open' AND class in('B','C')`, $select: "class,inspectiondate,apartment,story,novdescription", $order: "inspectiondate DESC", $limit: 8 }),
     violYear: soda("wvxf-dwi5", { $where: `${W} AND inspectiondate>='${yr}'`, $select: "count(*) as n" }),
+    leadGas: soda("wvxf-dwi5", { $where: `${W} AND violationstatus='Open' AND (novdescription like '%LEAD-BASED PAINT%' OR novdescription like '%LEAD BASED PAINT%' OR novdescription like '%LEAD PAINT%' OR novdescription like '%SUPPLY OF GAS%' OR novdescription like '%GAS SUPPLY%')`, $select: "class,inspectiondate,apartment,novdescription", $order: "inspectiondate DESC", $limit: 1000 }),
+    hpdLegal: soda("kj4p-ruqc", { $where: `boroid='${boro}' AND block='${block}' AND lot='${lot}'`, $select: "bin,legalclassa,legalclassb,legalstories,dobbuildingclass,lifecycle", $limit: 20 }),
+    // property sale and mortgage records (ACRIS); condo billing lots (75xx) are skipped because each unit sells separately
+    sale: +lot >= 7500 ? skip : soda("8h5j-fqxa", { $where: `borough=${boro} AND block=${block} AND lot=${lot}`, $select: "document_id", $order: "good_through_date DESC", $limit: 200 }).then(async L => {
+      const ids = [...new Set(L.map(r => r.document_id))];
+      if (!ids.length) return { docs: [] };
+      const docs = await soda("bnx9-e6tj", { $where: `document_id in(${sqlList(ids)}) AND doc_type in('DEED','DEEDO','CORRD','MTGE','AGMT')`, $select: "document_id,doc_type,document_date,document_amt", $order: "document_date DESC", $limit: 100 });
+      const deed = docs.find(d => d.doc_type === "DEED" || d.doc_type === "DEEDO");
+      let buyer = null;
+      if (deed) { try { buyer = (await soda("636b-3b5g", { $where: `document_id='${deed.document_id}' AND party_type='2'`, $select: "name", $limit: 5 })).map(x => x.name).join(", ") || null; } catch {} }
+      return { docs, deed, buyer };
+    }),
     heat: soda("ygpa-z7cr", { $where: `${W} AND major_category='HEAT/HOT WATER' AND received_date>='${iso(heatFrom)}'`, $select: "complaint_id,received_date", $limit: 50000 }),
     complaints: soda("ygpa-z7cr", { $where: `${W} AND received_date>='${yr}'`, $select: "major_category,count(*) as n", $group: "major_category", $order: "n DESC", $limit: 6 }),
     bedbugs: soda("wz6d-d3jb", { $where: W, $order: "filing_date DESC", $limit: 4 }),
@@ -377,10 +390,32 @@ function fetchReport(place, now, onUpdate) {
     raw.regPick = pick;
     return soda("feu5-w2e2", { $where: `registrationid='${pick.registrationid}'`, $select: "type,corporationname,firstname,lastname,businesscity", $limit: 50 });
   });
-  // 311 around the building needs coordinates: from the address search, or from PLUTO
-  q.nearby = (place.lat ? Promise.resolve({ lat: place.lat, lon: place.lon })
-    : q.pluto.then(rows => rows && rows[0] && rows[0].latitude ? { lat: +rows[0].latitude, lon: +rows[0].longitude } : null))
-    .then(c => { if (!c) throw new Error("No map location for this building."); return fetchNearby(c.lat, c.lon, now); });
+  // Everything around the building needs coordinates: from the address search, or from PLUTO
+  const coordsP = place.lat ? Promise.resolve({ lat: place.lat, lon: place.lon })
+    : q.pluto.then(rows => rows && rows[0] && rows[0].latitude ? { lat: +rows[0].latitude, lon: +rows[0].longitude } : null);
+  const geoQ = fn => coordsP.then(c => { if (!c) throw new Error("No map location for this building."); return fn(c); });
+  const pt = c => `'POINT(${c.lon} ${c.lat})'`;
+  const box = (c, m) => { const dLat = m / 111320, dLon = m / (111320 * Math.cos(c.lat * Math.PI / 180)); return { la0: (c.lat - dLat).toFixed(6), la1: (c.lat + dLat).toFixed(6), lo0: (c.lon - dLon).toFixed(6), lo1: (c.lon + dLon).toFixed(6) }; };
+  q.nearby = geoQ(c => fetchNearby(c.lat, c.lon, now));
+  // flood: city's 2020s 100-year floodplain, Sandy inundation, hurricane evacuation zone, FloodNet street sensors
+  q.fzone = geoQ(c => soda("aqw3-vugz", { $where: `intersects(the_geom,${pt(c)})`, $select: "fld_zone,static_bfe", $limit: 10 }));
+  q.sandy = geoQ(c => soda("5xsi-dfpx", { $where: `intersects(the_geom,${pt(c)})`, $select: "id", $limit: 1 }));
+  q.evac = geoQ(c => soda("epne-qv9x", { $where: `intersects(the_geom,${pt(c)})`, $select: "hurricane_", $limit: 5 }));
+  q.floodnet = geoQ(async c => {
+    const sensors = await soda("kb2e-tjy3", { $where: `within_circle(location,${c.lat},${c.lon},400)`, $select: "sensor_id,sensor_name,latitude,longitude,date_installed,date_removed", $limit: 20 });
+    if (!sensors.length) return { sensors, events: [], c };
+    const events = await soda("aq7i-eu5q", { $where: `sensor_id in(${sqlList(sensors.map(x => x.sensor_id))}) AND flood_start_time>='${yr2}'`, $select: "sensor_id,flood_start_time,max_depth_inches", $order: "flood_start_time DESC", $limit: 2000 });
+    return { sensors, events, c };
+  });
+  // construction: active DOB NOW permits, older-system new-building/demolition permits, after-hours work permits
+  q.build = geoQ(c => { const b = box(c, 160); return soda("rbx6-tga4", { $where: `latitude between ${b.la0} and ${b.la1} AND longitude between ${b.lo0} and ${b.lo1} AND expired_date>='${iso(now)}' AND work_type in('Full Demolition','Foundation','Earth Work','Support of Excavation','Sidewalk Shed','Supported Scaffold','Suspended Scaffold','Construction Fence','Structural','General Construction')`, $select: "bin,house_no,street_name,work_type,issued_date,expired_date,latitude,longitude,estimated_job_costs", $limit: 2000 }); });
+  // the older permit system stores coordinates as text, so match a latitude prefix (~1 km band) and check distance in the page
+  q.buildLegacy = geoQ(c => {
+    const b = box(c, 160), y = now.getFullYear();
+    const pre = [...new Set([+b.la0, +b.la1].map(x => (Math.floor(x * 100) / 100).toFixed(2)))];
+    return soda("ipu4-2q9a", { $where: `(${pre.map(x => `gis_latitude like '${x}%'`).join(" OR ")}) AND job_type in('NB','DM') AND (expiration_date like '%/${y}' OR expiration_date like '%/${y + 1}' OR expiration_date like '%/${y + 2}')`, $select: "bin__,job_type,house__,street_name,issuance_date,expiration_date,gis_latitude,gis_longitude", $limit: 5000 }, 30000);
+  });
+  q.ahv = geoQ(c => { const b = box(c, 160); return soda("g76y-dcqj", { $where: `latitude between ${b.la0} and ${b.la1} AND longitude between ${b.lo0} and ${b.lo1} AND variance_end_date_time>='${iso(now)}'`, $select: "bin,housenumber,streetname,reasonforvariance,variance_start_date_time,variance_end_date_time,latitude,longitude", $limit: 200 }); });
 
   const raw = {};
   const keys = Object.keys(q);
@@ -411,6 +446,7 @@ function analyze(raw, now, place) {
   const p = raw.pluto.ok && raw.pluto.rows[0];
   R.units = p ? N(p.unitsres) : 0;
   R.unitsKnown = R.units > 0;
+  R.nycha = !!(p && /HOUSING AUTHORITY|^NYCHA/i.test(p.ownername || ""));
   if (p && p.latitude && p.longitude) R.coords = { lat: +p.latitude, lon: +p.longitude };
   const u = Math.max(R.units, 1);
 
@@ -537,6 +573,8 @@ function analyze(raw, now, place) {
     R.dob = { s: "none", noBin: true };
   }
 
+  analyzeExtra(R, raw, now, place);
+
   // Rodent inspections at this property (nearby 311 added later)
   R.rodentProp = raw.rodent.ok ? raw.rodent.rows : null;
 
@@ -581,6 +619,131 @@ function analyze(raw, now, place) {
   analyzeNearby(R);
   tally(R);
   return R;
+}
+
+function meters(a, b) {
+  const R = 6371000, t = Math.PI / 180, dLa = (b.lat - a.lat) * t, dLo = (b.lon - a.lon) * t;
+  const x = Math.sin(dLa / 2) ** 2 + Math.cos(a.lat * t) * Math.cos(b.lat * t) * Math.sin(dLo / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(x));
+}
+const cleanStreet = s => String(s || "").replace(/\s+/g, " ").trim();
+const BUILD_KIND = { "Full Demolition": "Demolition", "Foundation": "Excavation and foundations", "Earth Work": "Excavation and foundations", "Support of Excavation": "Excavation and foundations",
+  "Sidewalk Shed": "Sidewalk shed", "Supported Scaffold": "Scaffolding", "Suspended Scaffold": "Scaffolding", "Construction Fence": "Construction fence", "Structural": "Structural work" };
+const HEAVY = new Set(["Demolition", "Excavation and foundations", "New building"]);
+const isBasementApt = a => /^(BSMT|BASEMENT|CELLAR|LL|LOWERLEVEL|SUB\w*)$/.test(normApt(a).replace(/-/g, ""));
+const aptFloor = a => { const m = normApt(a).replace(/-/g, "").match(/^(\d{1,2})[A-Z]{1,2}$/); return m ? +m[1] : null; };
+
+function analyzeExtra(R, raw, now, place) {
+  const c = R.coords || (place.lat ? { lat: place.lat, lon: place.lon } : null);
+
+  // Lead paint and cooking gas, from open HPD violations
+  if (raw.leadGas.ok) {
+    const isLead = r => /LEAD[- ]BASED PAINT|LEAD PAINT/i.test(r.novdescription || "");
+    const lead = raw.leadGas.rows.filter(isLead), gas = raw.leadGas.rows.filter(r => !isLead(r));
+    const apts = rows => new Set(rows.map(r => r.apartment).filter(Boolean)).size;
+    R.leadGas = { lead, gas, leadApts: apts(lead), gasApts: apts(gas) };
+  }
+
+  // Legal apartments (HPD's count of legal units and stories)
+  if (raw.hpdLegal.ok) {
+    const rows = raw.hpdLegal.rows.filter(r => !r.lifecycle || /building/i.test(r.lifecycle));
+    if (!rows.length) R.legal = { s: "none", none: true };
+    else {
+      const A = rows.reduce((t, r) => t + N(r.legalclassa), 0), B = rows.reduce((t, r) => t + N(r.legalclassb), 0);
+      const mine = rows.find(r => place.bin && r.bin === place.bin) || rows[0];
+      const stories = N(mine.legalstories);
+      const flags = [];
+      const tax = R.units;
+      if (tax && A && tax > A + Math.max(1, Math.round(A * 0.1))) flags.push(`City tax records list ${tax} apartments, more than the ${A} that are legal here.`);
+      if (place.apt && isBasementApt(place.apt)) flags.push("This is a basement or cellar unit. Most basement apartments in NYC aren't legal to rent, and they're the most dangerous in a flood.");
+      const fl = place.apt ? aptFloor(place.apt) : null;
+      if (fl && stories && fl > stories) flags.push(`Apartment ${normApt(place.apt)} suggests floor ${fl}, but the building's legal height is ${stories} ${w(stories, "story", "stories")}.`);
+      if (R.dob && R.dob.illegal) flags.push(`DOB received ${plural(R.dob.illegal, "complaint")} about illegal conversions in the past 2 years.`);
+      R.legal = { A, B, stories, tax, flags, cls: titleCase(mine.dobbuildingclass || "").replace(/\s+/g, " "), buildings: rows.length, s: flags.length ? "warn" : (A ? "ok" : "none") };
+    }
+  }
+
+  // Construction within ~150 m
+  if (c && (raw.build.ok || raw.buildLegacy.ok || raw.ahv.ok)) {
+    const sites = new Map();
+    const add = (addr, bin, kind, lat, lon, since, until) => {
+      if (!kind || !lat || !lon) return;
+      const d = meters(c, { lat, lon });
+      if (d > 160) return;
+      const here = !!(place.bin && bin && String(bin) === String(place.bin));
+      const k = addr.toUpperCase();
+      const s0 = sites.get(k) || { addr: titleCase(addr), kinds: new Set(), d, here, since: null, until: null };
+      s0.kinds.add(kind); s0.d = Math.min(s0.d, d); s0.here = s0.here || here;
+      if (since && (!s0.since || since < s0.since)) s0.since = since;
+      if (until && (!s0.until || until > s0.until)) s0.until = until;
+      sites.set(k, s0);
+    };
+    (raw.build.ok ? raw.build.rows : []).forEach(r => {
+      let kind = BUILD_KIND[r.work_type];
+      if (r.work_type === "General Construction") kind = N(String(r.estimated_job_costs).replace(/[^0-9.]/g, "")) >= 2e6 ? "Major renovation" : null;
+      add(`${r.house_no} ${cleanStreet(r.street_name)}`, r.bin, kind, +r.latitude, +r.longitude, r.issued_date && new Date(r.issued_date), r.expired_date && new Date(r.expired_date));
+    });
+    (raw.buildLegacy.ok ? raw.buildLegacy.rows : []).forEach(r => {
+      const until = usDate(r.expiration_date);
+      if (!until || until < now) return;
+      add(`${r.house__} ${cleanStreet(r.street_name)}`, r.bin__, r.job_type === "NB" ? "New building" : "Demolition", +r.gis_latitude, +r.gis_longitude, usDate(r.issuance_date), until);
+    });
+    const ahv = new Map();
+    (raw.ahv.ok ? raw.ahv.rows : []).forEach(r => {
+      if (!r.latitude || meters(c, { lat: +r.latitude, lon: +r.longitude }) > 160) return;
+      const k = `${r.housenumber} ${cleanStreet(r.streetname)}`.toUpperCase();
+      const e = ahv.get(k) || { addr: titleCase(k), reason: r.reasonforvariance, until: new Date(r.variance_end_date_time) };
+      const u = new Date(r.variance_end_date_time); if (u > e.until) e.until = u;
+      ahv.set(k, e);
+    });
+    const list = [...sites.values()].sort((a, b) => (b.here - a.here) || a.d - b.d);
+    const heavy = list.filter(x => [...x.kinds].some(k => HEAVY.has(k)));
+    const here = list.filter(x => x.here);
+    let s = "ok";
+    if (heavy.some(x => x.d <= 100)) s = "bad";
+    else if (heavy.length || here.length || ahv.size) s = "warn";
+    R.build = { list, heavy, here, ahv: [...ahv.values()], s };
+  } else if (!c && !raw.build.pending) R.build = { s: "none", noGeo: true };
+
+  // Flood risk
+  if (raw.fzone.ok || raw.sandy.ok || raw.evac.ok || raw.floodnet.ok) {
+    const fz = raw.fzone.ok ? raw.fzone.rows.find(r => /^(A|V)/.test(String(r.fld_zone || "").trim())) : null;
+    const sandy = raw.sandy.ok ? raw.sandy.rows.length > 0 : null;
+    const ez = raw.evac.ok ? (raw.evac.rows.map(r => String(r.hurricane_ || "").trim()).find(z => /^[1-6]$/.test(z)) || null) : null;
+    let net = null;
+    if (raw.floodnet.ok && raw.floodnet.rows.sensors.length) {
+      const { sensors, events } = raw.floodnet.rows;
+      const by = sensors.map(x => {
+        const ev = events.filter(e => e.sensor_id === x.sensor_id);
+        const deep = ev.filter(e => N(e.max_depth_inches) >= 4);
+        return { name: String(x.sensor_name || "").replace(/^[A-Z]{2}\s*-\s*/, ""), d: c ? meters(c, { lat: +x.latitude, lon: +x.longitude }) : null, events: ev.length, deep: deep.length, max: Math.max(0, ...ev.map(e => N(e.max_depth_inches))), last: deep[0] ? deep[0].flood_start_time : null };
+      }).sort((a, b) => (b.deep - a.deep) || (a.d - b.d));
+      net = { sensors: by, deep: by.reduce((t, x) => t + x.deep, 0) };
+    }
+    const nb = raw.nearby.ok ? raw.nearby.rows : [];
+    const street = nb.filter(r => r.complaint_type === "Sewer" && /street flooding|catch basin.*flood|sewer backup|manhole overflow/i.test(r.descriptor || ""));
+    const streetN = street.reduce((t, r) => t + N(r.n), 0);
+    const reasons = [];
+    if (fz) reasons.push("In the 100-year floodplain");
+    if (sandy) reasons.push("Flooded in Hurricane Sandy");
+    if (ez && +ez <= 2) reasons.push(`Hurricane evacuation zone ${ez}`);
+    if (net && net.deep) reasons.push(`${plural(net.deep, "street flood")} over 4 in. nearby`);
+    if (streetN >= 3) reasons.push(`${plural(streetN, "flooding report")} to 311`);
+    let s = "ok";
+    if (fz || (sandy && place.apt && isBasementApt(place.apt))) s = "bad";
+    else if (sandy || (ez && +ez <= 2) || (net && net.deep) || streetN >= 3) s = "warn";
+    R.flood = { fz, sandy, ez, net, street, streetN, reasons, s, level: s === "bad" ? "High" : s === "warn" ? "Some" : "Low" };
+  }
+
+  // Last sale and financing (ACRIS)
+  if (raw.sale.ok) {
+    const { docs, deed, buyer } = raw.sale.rows;
+    const loans = (docs || []).filter(d => (d.doc_type === "MTGE" || d.doc_type === "AGMT") && N(d.document_amt) > 1000);
+    const lastDay = loans.length ? String(loans[0].document_date).slice(0, 10) : null;
+    const loan = loans.filter(d => String(d.document_date).slice(0, 10) === lastDay).sort((a, b) => N(b.document_amt) - N(a.document_amt))[0];
+    const recent = deed && new Date(deed.document_date) >= yearsAgo(2, now);
+    R.sale = { deed, buyer, loan, recent, price: deed ? N(deed.document_amt) : 0 };
+  }
 }
 
 function stabilization(p, raw) {
@@ -633,7 +796,7 @@ function noiseLabel(type, d) {
   return where === "Other" ? (what ? what[0].toUpperCase() + what.slice(1).toLowerCase() : "Other") : `${where}: ${what.toLowerCase()}`;
 }
 
-const ORDER = ["viol", "heat", "bugs", "evict", "law", "watch", "dob", "noise", "rats"];
+const ORDER = ["viol", "heat", "bugs", "evict", "law", "watch", "dob", "legal", "flood", "build", "noise", "rats"];
 function tally(R) {
   R.counts = { bad: 0, warn: 0, ok: 0, none: 0 };
   R.pendingChecks = ORDER.filter(k => isPending(R, k)).length;
@@ -644,6 +807,9 @@ function tally(R) {
 const $ = s => document.querySelector(s);
 function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
 const fmt = n => Number(n).toLocaleString("en-US");
+const money = n => n >= 1e6 ? `$${(n / 1e6).toFixed(n >= 1e7 ? 1 : 2).replace(/\.?0+$/, "")} million` : `$${fmt(Math.round(n))}`;
+const mfmt = d => new Date(d).toLocaleDateString("en-US", { month: "short", year: "numeric" });
+const dist = m => m < 15 ? "here" : `${Math.round(m / 10) * 10} m away`;
 const dfmt = d => new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 const STATUS = { ok: "Clear", warn: "Ask about it", bad: "Concern", none: "No data" };
 const pill = s => `<span class="pill s-${s}">${STATUS[s]}</span>`;
@@ -724,7 +890,7 @@ function headline(R) {
 }
 function headlineCore(R) {
   const { bad, warn, ok } = R.counts;
-  if (bad >= 2) return ["Serious red flags in the city's records", `${bad} concerns and ${plural(warn, "thing")} to ask about.`];
+  if (bad >= 2) return ["Serious red flags in the city's records", warn ? `${bad} concerns and ${plural(warn, "thing")} to ask about.` : `${bad} concerns.`];
   if (bad === 1) return ["One concern worth a follow-up", warn ? `Plus ${plural(warn, "thing")} to ask about.` : "Everything else looks clear."];
   if (warn >= 3) return ["A mixed record. Ask before you sign", `${plural(warn, "thing")} to ask the landlord about.`];
   if (warn) return ["Mostly clean, with something to ask about", `${plural(warn, "thing")} worth raising, ${ok} clear.`];
@@ -752,6 +918,16 @@ function cards(R) {
     card("dob", "Building safety", R.dob.s, fmt(R.dob.ecbHaz.length + R.dob.dv.length), `open hazardous or no-permit DOB violations · ${plural(R.dob.comps.length, "complaint")} in 2 years`,
       b ? (b.ageMonths > 18 ? `Boiler last inspected ${dfmt(b.newest)}` : b.defects ? "Boiler inspection found defects" : "Boiler inspected, no defects") : "");
   } else na("dob", "Building safety");
+  P("legal", "legal", "Legal apartments") || (R.legal && !R.legal.none ? card("legal", "Legal apartments", R.legal.s, fmt(R.legal.A),
+    `legal ${w(R.legal.A, "apartment", "apartments")} per HPD · ${R.legal.stories ? `${R.legal.stories} legal ${w(R.legal.stories, "story", "stories")}` : "height not listed"}`,
+    R.legal.flags.length ? esc(R.legal.flags[0].split(". ")[0].replace(/\.$/, "")) : (R.legal.tax ? "Matches the city's tax records" : ""))
+    : na("legal", "Legal apartments", R.legal ? "HPD has no record for this building, which usually means it isn't a rental with 3+ units." : ""));
+  P("flood", "flood", "Flood risk") || (R.flood ? card("flood", "Flood risk", R.flood.s, R.flood.level,
+    R.flood.reasons.length ? R.flood.reasons.slice(0, 2).join(" · ") : "Outside the floodplain · no recent street flooding") : na("flood", "Flood risk"));
+  P("build", "build", "Construction nearby") || (R.build && !R.build.noGeo ? card("build", "Construction nearby", R.build.s, fmt(R.build.list.length),
+    `active construction ${w(R.build.list.length, "site", "sites")} within 150 m`,
+    R.build.here.length ? ([...R.build.here[0].kinds].includes("New building") ? "New building going up on this lot" : `${[...R.build.here[0].kinds][0]} at this building`) : R.build.heavy.length ? `${plural(R.build.heavy.length, "site")} with demolition or excavation` : R.build.ahv.length ? "After-hours work permitted nearby" : "")
+    : na("build", "Construction nearby"));
   P("noise", "block", "Noise on the block") || (R.noise ? card("block", "Noise on the block", R.noise.s, fmt(R.noise.total), `311 noise ${w(R.noise.total, "complaint", "complaints")} within 150 m, past year`, cmpBlock(R.noise.below, R.noise.above, "Louder than", "Quieter than")) : na("block", "Noise on the block", R.nearbyError ? "Couldn't load 311 records nearby." : ""));
   P("rats", "block", "Rats on the block") || (R.rats ? card("block", "Rats on the block", R.rats.s, R.rats.total != null ? fmt(R.rats.total) : "—", (R.rats.recentHit ? `rodent ${w(R.rats.total, "complaint", "complaints")} nearby · <b>rats found at this property</b> in the past year` : `311 rodent ${w(R.rats.total, "complaint", "complaints")} within 150 m, past year${R.rats.ratHits.length ? " · rats found at this property in the past 2 years" : ""}`),
       R.rats.below != null ? cmpBlock(R.rats.below, R.rats.above, "More than", "Fewer than") : "") : na("block", "Rats on the block"));
@@ -767,6 +943,8 @@ function render(R, place) {
   if (p && N(p.numfloors)) facts.push(`<li><b class="num">${Math.round(N(p.numfloors))}</b> floors</li>`);
   if (p && N(p.yearbuilt)) facts.push(`<li>Built <b class="num">${N(p.yearbuilt)}</b></li>`);
   facts.push(`<li>BBL <b class="mono">${esc(place.bbl)}</b></li>`);
+  if (R.nycha) facts.push(`<li class="stab"><a href="#violations" data-jump="violations">Public housing (NYCHA)</a></li>`);
+  if (R.sale && R.sale.recent) facts.push(`<li class="stab"><a href="#owner" data-jump="owner">Sold ${esc(mfmt(R.sale.deed.document_date))}</a></li>`);
   if (R.stab && !isPending(R, "stab")) facts.push(`<li class="stab"><a href="#stab" data-jump="stab">${esc(R.stab.chip)}</a></li>`);
 
   let aptline = "";
@@ -802,9 +980,13 @@ function render(R, place) {
       ${S("law", "lawsuits", "HPD lawsuits", false, secLaw)}
       ${S("watch", "watch", "City watch lists", false, secWatch)}
       ${S("dob", "dob", "Building safety", false, secDob)}
+      ${S("legal", "legal", "Legal apartments", false, secLegal)}
+      ${S("flood", "flood", "Flood risk", false, secFlood)}
+      ${S("build", "build", "Construction nearby", true, secBuild)}
       ${secBlock(R)}
       ${S("stab", "stab", "Rent stabilization", false, secStab)}
       ${S("owner", "owner", "Who you'd rent from", false, secOwner)}
+      ${secRights()}
       ${secAsk(R)}
     </div>`;
   $("#copySum").onclick = () => copyText(summaryText(R, place), "Summary copied");
@@ -846,14 +1028,25 @@ function secViolations(R) {
   const total = v.all.A + v.all.B + v.all.C + (v.all.I || 0);
   return `<section class="sec wide" id="violations">
     <h2>Open HPD violations ${pill(v.s)}</h2>
+    ${R.nycha ? `<p><b>This is a NYCHA public housing building.</b> HPD doesn't inspect public housing, so violation, complaint and bedbug records here will look clean even when conditions aren't. Ask residents, and check NYCHA's own repair record with the tenant association.</p>` : ""}
     <p>HPD issues violations when an inspector confirms a problem. Open ones haven't been certified as fixed. ${v.lastYear != null ? `${plural(v.lastYear, "violation was", "violations were")} issued in the past 12 months, out of ${fmt(total)} on record.` : ""}</p>
     <div class="classbar">
       <div class="cls"><span class="k">CLASS A</span><span class="v num">${fmt(v.open.A)}</span><span class="d">Non-hazardous. 90 days to fix.</span></div>
       <div class="cls"><span class="k">CLASS B</span><span class="v num">${fmt(v.open.B)}</span><span class="d">Hazardous. 30 days to fix.</span></div>
       <div class="cls hot"><span class="k">CLASS C</span><span class="v num">${fmt(v.open.C)}</span><span class="d">Immediately hazardous. 24 hours to fix.</span></div>
     </div>
+    ${leadGasCallouts(R)}
     ${rows.length ? `<ul class="list">${rows.map(r => `<li><span class="tagc ${esc(r.class)}">${esc(r.class)}</span><span>${esc(cleanNov(r.novdescription))}</span><span class="meta">${dfmt(r.inspectiondate)}${r.apartment ? ` · Apt ${esc(r.apartment)}` : ""}</span></li>`).join("")}</ul><p class="note">Most recent open Class B and C violations. Many old violations stay “open” only because no one filed the paperwork; recent ones matter most.</p>` : `<p class="note">No open hazardous violations.</p>`}
   </section>`;
+}
+
+function leadGasCallouts(R) {
+  const L = R.leadGas;
+  if (!L || (!L.lead.length && !L.gas.length)) return "";
+  const items = [];
+  if (L.lead.length) items.push(`<li><span class="tagc C wide">LEAD</span><span><b>${plural(L.lead.length, "open lead-paint violation")}</b>${L.leadApts ? ` in ${plural(L.leadApts, "apartment")}` : ""}, most recently ${dfmt(L.lead[0].inspectiondate)}. Peeling lead paint is most dangerous for children under 6; landlords must fix it and inspect yearly where young children live.</span></li>`);
+  if (L.gas.length) items.push(`<li><span class="tagc B wide">GAS</span><span><b>${plural(L.gas.length, "open violation")} for no cooking gas</b>${L.gasApts ? ` in ${plural(L.gasApts, "apartment")}` : ""}, most recently ${dfmt(L.gas[0].inspectiondate)}. Gas shutoffs in NYC buildings often last months while pipes are repaired.</span></li>`);
+  return `<ul class="list">${items.join("")}</ul>`;
 }
 
 function secHeat(R) {
@@ -965,6 +1158,76 @@ function secBlock(R) {
   </section>`;
 }
 
+function secLegal(R) {
+  const L = R.legal;
+  if (!L) return errSec("legal", "Legal apartments", R.raw.hpdLegal);
+  if (L.none) return `<section class="sec" id="legal"><h2>Legal apartments ${pill("none")}</h2><p>HPD has no record of this building. That usually means it isn't a rental building with three or more apartments, such as a one- or two-family house, a condo or a co-op.</p></section>`;
+  const rows = [["Legal apartments", `${fmt(L.A)}${L.B ? ` plus ${plural(L.B, "rooming unit")}` : ""}`]];
+  if (L.stories) rows.push(["Legal height", `${L.stories} ${w(L.stories, "story", "stories")}`]);
+  if (L.cls) rows.push(["Building type", L.cls]);
+  if (L.tax) rows.push(["On city tax records", `${fmt(L.tax)} ${w(L.tax, "apartment", "apartments")}`]);
+  if (L.buildings > 1) rows.push(["Buildings on this lot", fmt(L.buildings)]);
+  return `<section class="sec" id="legal">
+    <h2>Legal apartments ${pill(L.s)}</h2>
+    <p>HPD keeps the official count of how many apartments a building is allowed to have. Units carved out beyond that, including most basement apartments, are illegal.</p>
+    <dl class="kv">${rows.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join("")}</dl>
+    ${L.flags.length ? `<ul class="watch">${L.flags.map(f => `<li>${pill("warn")}<div><span class="t">${esc(f)}</span></div></li>`).join("")}</ul>` : `<p class="note">Nothing suggests extra or illegal units.</p>`}
+    <p class="note">The city can order illegal apartments vacated with little notice, and they often lack a second way out in a fire.</p>
+  </section>`;
+}
+
+function secFlood(R) {
+  const F = R.flood;
+  if (!F) return errSec("flood", "Flood risk", R.raw.fzone);
+  const yesno = (v, y, n) => v == null ? "Couldn't check" : v ? y : n;
+  const rows = [
+    ["Coastal floodplain", F.fz ? `Inside the 100-year floodplain (zone ${esc(F.fz.fld_zone)}), a 1% or higher chance of flooding each year` : yesno(R.raw.fzone.ok ? false : null, "", "Outside the 100-year floodplain")],
+    ["Hurricane Sandy, 2012", yesno(F.sandy, "This spot flooded", "This spot didn't flood")],
+    ["Hurricane evacuation", F.ez ? `Zone ${F.ez} of 6 (zone 1 evacuates first)` : yesno(R.raw.evac.ok ? false : null, "", "Not in an evacuation zone")],
+  ];
+  if (F.net) {
+    const t = F.net.sensors[0];
+    rows.push(["Street flood sensor", `${esc(t.name)}, ${dist(t.d || 0)}: ${t.deep ? `${plural(t.deep, "flood")} over 4 inches deep in the past 2 years, the deepest ${t.max.toFixed(0)} in.` : `no floods over 4 inches in the past 2 years${t.events ? ` (${plural(t.events, "shallow event")})` : ""}`}`]);
+  } else rows.push(["Street flood sensor", "No FloodNet sensor within 400 m"]);
+  rows.push(["311 flooding reports", F.streetN ? `${plural(F.streetN, "report")} of street flooding or sewer backup within 150 m in the past year` : "None within 150 m in the past year"]);
+  const bsmt = R.place.apt && isBasementApt(R.place.apt);
+  return `<section class="sec" id="flood">
+    <h2>Flood risk ${pill(F.s)}</h2>
+    <dl class="kv">${rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl>
+    ${bsmt ? `<p><b>This is a basement unit.</b> Basement apartments are where people have died in NYC flash floods. Make sure there's a second way out above ground.</p>` : ""}
+    <p class="note">Since 2023, landlords must tell you in the lease whether the apartment is in a floodplain and whether it has flooded before. Standard renters insurance doesn't cover flood damage, but you can buy flood coverage for your belongings. The floodplain shown is the city's 2020s map, which can differ from FEMA's official one.</p>
+    <div class="links"><a href="https://www.floodhelpny.org" target="_blank" rel="noopener">FloodHelpNY ↗</a></div>
+  </section>`;
+}
+
+function secBuild(R) {
+  const B = R.build;
+  if (!B) return errSec("build", "Construction nearby", R.raw.build);
+  if (B.noGeo) return `<section class="sec wide" id="build"><h2>Construction nearby ${pill("none")}</h2><p class="err">No map location for this building, so nearby permits can't be checked.</p></section>`;
+  const tag = k => HEAVY.has(k) ? "C" : (k === "Sidewalk shed" || k === "Scaffolding") ? "B" : "x";
+  const rows = B.list.slice(0, 8).map(x => `<li><span class="tagc wide ${tag([...x.kinds].find(k => HEAVY.has(k)) || [...x.kinds][0])}">${x.here ? "HERE" : esc(dist(x.d).replace(" away", ""))}</span><span><b>${esc(x.addr)}</b>: ${esc([...x.kinds].join(", ").toLowerCase().replace(/^\w/, c => c.toUpperCase()))}</span><span class="meta">${x.since ? `Permit since ${mfmt(x.since)}` : "Active permit"}${x.until ? ` · runs to ${mfmt(x.until)}` : ""}</span></li>`);
+  return `<section class="sec wide" id="build">
+    <h2>Construction nearby ${pill(B.s)}</h2>
+    <p>Active Department of Buildings permits within about 150 meters for demolition, excavation, new buildings, major renovations, sidewalk sheds and scaffolding. Interior plumbing and electrical jobs are left out.</p>
+    ${rows.length ? `<ul class="list">${rows.join("")}</ul>${B.list.length > 8 ? `<p class="note">Plus ${plural(B.list.length - 8, "more site")}.</p>` : ""}` : `<p class="note">No active demolition, excavation, sheds or scaffolding nearby.</p>`}
+    ${B.ahv.length ? `<p><b>After-hours work:</b> ${B.ahv.slice(0, 4).map(a => `${esc(a.addr)} (${esc(String(a.reason || "").toLowerCase())}, through ${dfmt(a.until)})`).join(" · ")}. These permits allow work at night or on weekends.</p>` : ""}
+    <p class="note">Permits can be renewed, so work often runs past the dates shown. Sidewalk sheds in particular stay up for years.</p>
+  </section>`;
+}
+
+function secRights() {
+  return `<section class="sec wide" id="rights">
+    <h2>Your rights when you rent</h2>
+    <ul class="ask">
+      <li><b>Broker fees:</b> under the FARE Act, if the landlord hired the broker, the landlord pays the fee. Listings must spell out any fees you'll owe.</li>
+      <li><b>Application fee:</b> at most $20 for a background and credit check, and nothing if you bring your own check from the past 30 days.</li>
+      <li><b>Security deposit:</b> no more than one month's rent, returned within 14 days of moving out with an itemized list of any deductions.</li>
+      <li><b>Disclosures:</b> the lease must say whether the apartment is in a floodplain and has flooded before, the landlord must give you the building's bedbug history for the past year, and a stabilized lease comes with a rider explaining your rights.</li>
+    </ul>
+    <p class="note">This is general information, not legal advice.</p>
+  </section>`;
+}
+
 function secStab(R) {
   if (!R.stab) return "";
   return `<section class="sec" id="stab">
@@ -987,11 +1250,19 @@ function secOwner(R, place) {
   if (o && o.site) rows.push(["Site manager", o.site]);
   if (o && o.reg && o.reg.lastregistrationdate) rows.push(["Last registered with HPD", dfmt(o.reg.lastregistrationdate)]);
   if (!rows.length && o && o.plutoOwner) rows.push(["Owner on tax records", o.plutoOwner]);
+  const sl = R.sale;
+  if (sl && sl.deed) {
+    rows.push(sl.price > 1000 ? ["Last sold", `${dfmt(sl.deed.document_date)} for ${money(sl.price)}${R.units > 2 ? ` (${money(sl.price / R.units)} per apartment)` : ""}`]
+                              : ["Last transferred", `${dfmt(sl.deed.document_date)}, no price recorded`]);
+    if (sl.buyer) rows.push(["Bought by", sl.buyer]);
+  }
+  if (sl && sl.loan && N(sl.loan.document_amt) > 1000) rows.push(["Latest mortgage", `${dfmt(sl.loan.document_date)}, ${money(N(sl.loan.document_amt))}`]);
   const bid = o && o.reg && o.reg.buildingid;
   return `<section class="sec" id="owner">
     <h2>Who you'd rent from</h2>
     ${rows.length ? `<dl class="kv">${rows.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join("")}</dl>` : `<p>No HPD registration found. Rental buildings with three or more units must register every year, so ask the landlord why.</p>`}
-    <p class="note">Owners often hide behind a one-building LLC. The head officer and managing agent tell you more about who runs it.</p>
+    ${sl && sl.recent ? `<p><b>This building changed hands in the past 2 years.</b> New owners often renovate, raise rents on vacant units or offer buyouts. Ask what's planned.</p>` : ""}
+    <p class="note">Owners often hide behind a one-building LLC. The head officer and managing agent tell you more about who runs it. Sale records come from the city's property register (ACRIS)${R.raw.sale.skipped ? "; condo apartments sell one at a time, so there's no building sale to show" : ""}.</p>
     <div class="links">
       <a href="https://whoownswhat.justfix.org/en/bbl/${esc(place.bbl)}" target="_blank" rel="noopener">Landlord's other buildings ↗</a>
       ${bid ? `<a href="https://hpdonline.nyc.gov/hpdonline/building/${esc(bid)}" target="_blank" rel="noopener">HPD Online ↗</a>` : ""}
@@ -1013,6 +1284,12 @@ function questions(R) {
   if (R.rats && R.rats.s !== "ok") q.push(`Rats are reported around the building. How is garbage stored, and how often does an exterminator come?`);
   if (R.noise && R.noise.s !== "ok") q.push(`The block gets a lot of noise complaints. Visit on a Friday or Saturday night before you sign.`);
   if (R.stab && R.stab.level !== "unlikely") q.push("Is this apartment rent stabilized? If so, ask for the lease rider and request the rent history from the state to check the rent is legal.");
+  if (R.legal && R.legal.flags && R.legal.flags.length) q.push("The city's records raise doubts about legal units here. Ask whether this apartment is one of the building's legal apartments.");
+  if (R.flood && R.flood.s !== "ok" && R.flood.s !== "none") q.push("Ask for the flood disclosure the lease must include: has this apartment or the basement flooded before?");
+  if (R.build && !R.build.noGeo && R.build.s !== "ok") q.push(`There's construction ${R.build.here.length ? "at this building" : "nearby"}. Ask how long it will last and what hours the crews work.`);
+  if (R.sale && R.sale.recent) q.push(`The building sold in ${mfmt(R.sale.deed.document_date)}. Is the new owner planning renovations or buyouts?`);
+  if (R.leadGas && R.leadGas.lead.length) q.push("There are open lead-paint violations. If a child under 6 will live with you, tell the landlord in writing; they must inspect and fix lead hazards.");
+  if (R.leadGas && R.leadGas.gas.length) q.push("Some apartments have no cooking gas. Does this one have working gas, and when will the rest be restored?");
   q.push("Ask a current tenant in the lobby or on the stoop what living there is like.");
   return q;
 }
@@ -1038,10 +1315,14 @@ function summaryText(R, place) {
     line("HPD lawsuits", "law", () => R.law.harass.length ? "harassment finding" : `${fmt(R.law.recent.length)} cases in 3 years`),
     line("City watch lists", "watch", () => R.watch.flagged.length ? R.watch.flagged.map(l => l.name).join(", ") : "none"),
     line("Building safety (DOB)", "dob", () => R.dob.noBin ? "not matched" : `${plural(R.dob.ecbHaz.length + R.dob.dv.length, "open hazardous or no-permit violation")}, ${plural(R.dob.comps.length, "complaint")} in 2 years`),
+    line("Legal apartments", "legal", () => R.legal.none ? "no HPD record" : `${fmt(R.legal.A)} legal${R.legal.flags && R.legal.flags.length ? ", " + R.legal.flags.length + " concern" + (R.legal.flags.length > 1 ? "s" : "") : ""}`),
+    line("Flood risk", "flood", () => `${R.flood.level}${R.flood.reasons.length ? ": " + R.flood.reasons.join(", ") : ""}`),
+    line("Construction nearby", "build", () => R.build.noGeo ? "not checked" : `${plural(R.build.list.length, "active site")} within 150 m${R.build.here.length ? ", including this building" : ""}`),
     line("Noise on the block", "noise", () => `${fmt(R.noise.total)} complaints in a year`),
     line("Rats on the block", "rats", () => `${R.rats.total != null ? fmt(R.rats.total) + " complaints in a year" : ""}${R.rats.recentHit ? ", rats found at the property" : ""}`),
   ].filter(x => x !== null);
   if (R.apt) out.push(`• Apartment ${R.apt.label}: ${plural(R.apt.violOpen.length, "open violation")}, ${plural(R.apt.complaints, "complaint")} to HPD`);
+  if (R.sale && R.sale.deed) out.push(`• Last sold ${dfmt(R.sale.deed.document_date)}${R.sale.price > 1000 ? " for " + money(R.sale.price) : ""}`);
   if (R.stab) out.push(`• ${R.stab.chip}`);
   if (/^https?:$/.test(location.protocol)) out.push("", location.href);
   out.push("", "Source: NYC Open Data");

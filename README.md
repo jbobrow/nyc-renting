@@ -17,10 +17,13 @@ Each check is marked **Clear**, **Ask about it** or **Concern**, and compared wi
 | HPD lawsuits | HPD Housing Litigation, including harassment findings |
 | City watch lists | Alternative Enforcement Program, vacate orders, Certification of No Harassment list, Speculation Watch List |
 | Building safety | DOB complaints, DOB and ECB violations, boiler inspections |
+| Legal apartments | HPD's legal unit and story counts vs. city tax records, basement units, illegal-conversion complaints |
+| Flood risk | 2020s 100-year floodplain, Hurricane Sandy inundation zone, hurricane evacuation zones, FloodNet street sensors, 311 flooding reports |
+| Construction nearby | Active DOB permits within 150 m (demolition, excavation, new buildings, sheds, scaffolding) and after-hours work permits |
 | Noise on the block | 311 noise complaints within 150 m |
 | Rats on the block | 311 rodent complaints within 150 m and DOHMH rodent inspections |
 
-It also shows the registered owner and managing agent, an estimate of whether the building is rent stabilized, apartment-level history when you enter a unit, and questions to ask the landlord.
+It also flags open lead-paint and no-cooking-gas violations, shows the last sale and mortgage from ACRIS, a short summary of renters' rights, the registered owner and managing agent, an estimate of whether the building is rent stabilized, apartment-level history when you enter a unit, and questions to ask the landlord.
 
 ## How it works
 
