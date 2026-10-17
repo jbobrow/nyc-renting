@@ -1,4 +1,4 @@
-# NYC Renting · Know before you sign
+# NYC Rent · Know before you sign
 
 Type any New York City address (and, if you like, an apartment number) and see what the city knows about the building before you sign a lease.
 
