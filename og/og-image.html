@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Source for the site's share image (og:image), 1200x630 drawn at 2x.
+     Same layout as the Cookbo, NYC Parking and Now Departing previews:
+     icon and name, the tagline big, one line on what it does, the signature,
+     and the site's watercolor block (in fall) on the right. Re-render with ./render.sh -->
+<title>NYC Rent share image</title>
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800&display=block">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1200px; height: 630px; overflow: hidden; }
+  body {
+    background: #F4F3F1;
+    color: #16171B;
+    font-family: ui-rounded, "SF Pro Rounded", Nunito, system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    position: relative;
+  }
+  .copy {
+    position: absolute; left: 88px; top: 0; bottom: 0; width: 470px;
+    display: flex; flex-direction: column; justify-content: center; gap: 26px;
+  }
+  .app { display: flex; align-items: center; gap: 22px; }
+  .app .icon {
+    width: 84px; height: 84px; border-radius: 19px; background: #FFFFFF;
+    box-shadow: 0 1px 2px rgba(0,0,0,.12), 0 6px 18px rgba(0,0,0,.10);
+    display: grid; place-items: center;
+    font-family: "Apple Color Emoji", "Noto Color Emoji", "Segoe UI Emoji", sans-serif; font-size: 52px; line-height: 1;
+  }
+  .app span { font-size: 40px; font-weight: 700; letter-spacing: -0.01em; }
+  h1 {
+    font-family: ui-rounded, "SF Pro Rounded", Nunito, system-ui, -apple-system, sans-serif;
+    font-size: 68px; font-weight: 800;
+    line-height: 1.02; letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+  .pitch { font-size: 25px; line-height: 1.38; color: #5d5e64; font-weight: 500; max-width: 420px; }
+  .sig { width: 214px; height: auto; color: #16171B; margin-top: 6px; }
+
+  /* The site's watercolor block in fall, standing on the bottom edge */
+  .art { position: absolute; right: 10px; bottom: -20px; width: 650px; }
+  .art .block-art { display: block; width: 100%; height: auto; overflow: visible; }
+.wc-ik { fill: none; stroke: #2E2B28; stroke-width: 1; stroke-linecap: round; stroke-linejoin: round; }
+.wc-ik.wc-f { stroke-width: 2.2; stroke: #2B2F35; }
+.wc-ik.wc-t { stroke-width: .6; opacity: .7; }
+.wc-ik.wc-r { stroke-width: 1.7; stroke: #26292D; }
+.s-c1 { fill: var(--c1); } .s-c2 { fill: var(--c2); } .s-c3 { fill: var(--c3); } .s-c4 { fill: var(--c4); } .s-c5 { fill: var(--c5); }
+.s-f1 { fill: var(--f1); } .s-f2 { fill: var(--f2); } .s-grass { fill: var(--grass); }
+.s-canopy { opacity: var(--canopy); } .s-fall { opacity: var(--leaves); } .s-blossom { opacity: var(--blossom); } .s-snow { opacity: var(--snow); }
+.season-fall { --c1: #E8A33B; --c2: #D9652B; --c3: #F2C14E; --c4: #C2452D; --c5: #EFB45A; --canopy: 1; --leaves: 1; --blossom: 0; --snow: 0; --grass: #D6B75C; --f1: #D9652B; --f2: #E8A33B; }
+.season-winter { --c1: #A9B4AE; --c2: #A9B4AE; --c3: #A9B4AE; --c4: #A9B4AE; --c5: #A9B4AE; --canopy: 0; --leaves: 0; --blossom: 0; --snow: .95; --grass: #E6E3DA; --f1: #3F6B45; --f2: #2E5536; }
+.season-spring { --c1: #BFD98F; --c2: #9CC46E; --c3: #E7B3C4; --c4: #F2CFDA; --c5: #A9CC7C; --canopy: 1; --leaves: 0; --blossom: 1; --snow: 0; --grass: #A9C77A; --f1: #D9668B; --f2: #F2D04F; }
+.season-summer { --c1: #7FA65A; --c2: #5E8B44; --c3: #A3C474; --c4: #4C7538; --c5: #8DB563; --canopy: 1; --leaves: 0; --blossom: 0; --snow: 0; --grass: #8CB36A; --f1: #8A5BC0; --f2: #E25C7A; }
+</style>
+</head>
+<body>
+  <div class="copy">
+    <div class="app"><div class="icon" aria-hidden="true">🏡</div><span>NYC Rent</span></div>
+    <h1>Know before you sign.</h1>
+    <p class="pitch">See what the city knows about any NYC building before you rent it. Free, from public records.</p>
+    <!-- The same signature as the site footers and the other previews -->
+    <svg class="sig" aria-label="App by Jon Bobrow" viewBox="0 0 3087.29 681.93" fill="none" stroke="currentColor" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"><path d="M1610.11,335.11c0,17.82,19.8,77.22,3.96,110.89M15,537.47C23.66,136.35,107.34,18.04,136.2,15.15c28.86-2.89,86.57,31.74,86.57,484.8M80.58,356.55c65.34-37.62,178.21-25.74,178.21-25.74M320.17,330.81c81.18-15.84,176.23,73.26,47.52,142.57M466.7,328.83c81.18-15.84,160.39,71.28,67.32,134.65M353.83,396.15c-5.94,104.95,29.7,241.57,29.7,241.57M490.46,378.33c-5.94,104.95,13.86,211.87,13.86,211.87M788.37,148.98c-11.88,49.5-26.16,130.64-33.66,199.99-7.92,73.26,38.68,123.77,86.2,90.1s12.8-101.98-40.66-98.06M923.02,537.08c-35.64,27.72-53.4,109.67,2.96,126.69,69.81,21.08,80.2-67.28,76.24-138.57s-19.8-194.05-19.8-194.05M982.42,331.15c1.98,75.24-9.9,118.81-51.48,110.89s-31.68-85.14-23.76-128.71M1388.34,55.92c29.7,142.57,55.95,373.41-47.52,407.9-71.28,23.76-100.98-51.48-93.06-83.16M1507.15,321.25c-45.54-3.96-56.51,138.61,9.9,138.61,73.26,0,47.85-133.59-9.9-138.61ZM2225.92,343.03c-72.62,9.68-56.39,142.67,9.9,138.61,97.02-5.94,49.5-146.53-9.9-138.61ZM2686.12,343.13c-64.18-8.02-87.35,95.19-26.56,112.77,66.28,19.16,73.26-106.93,26.56-112.77ZM1614.07,445.99c19.8-85.14,41.58-116.83,55.44-116.83s37.62,108.91,73.26,128.71M1934.85,172.74c47.52-45.54,186.13-25.74,194.05,33.66,7.92,59.4-39.6,97.02-37.62,122.77s56.36,69.3,38.54,120.79-66.26,57.42-137.55,25.74M2002.17,198.48c-5.94,47.52-1.98,209.89,7.92,241.57M2352.65,182.64c-7.92,55.44-9.84,280.18,67.32,277.21,51.48-1.98,57.42-116.83-17.82-122.77M2590.26,305.41c-35.64,13.86-59.4,27.56-59.4,134.65,0,9.9-15.84-93.06-19.8-116.83M2881.33,392.53s-9.9,67.32,39.6,65.34c69.28-2.77,130.89-59.33,148.51-138.61,15.84-71.28-39.6-83.16-39.6-83.16M2778.37,360.85c-7.92,49.5-1.85,92.77,17.82,95.04,51.48,5.94,85.14-63.36,85.14-63.36"/></svg>
+  </div>
+  <div class="art"><svg class="block-art season-fall" viewBox="0 0 590 310" aria-hidden="true" focusable="false">
+      <defs>
+        <filter id="wc-paint" x="-4%" y="-4%" width="108%" height="108%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.045" numOctaves="3" seed="3" result="warp"></feTurbulence>
+          <feDisplacementMap in="SourceGraphic" in2="warp" scale="3.2" xChannelSelector="R" yChannelSelector="G" result="wob"></feDisplacementMap>
+          <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="2" seed="11" result="blot"></feTurbulence>
+          <feColorMatrix in="blot" type="matrix" values="0 0 0 0 0.22  0 0 0 0 0.16  0 0 0 0 0.12  0 0 0 0.55 -0.12" result="blot2"></feColorMatrix>
+          <feComposite in="blot2" in2="wob" operator="in" result="blot3"></feComposite>
+          <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="5" result="grain"></feTurbulence>
+          <feColorMatrix in="grain" type="matrix" values="0 0 0 0 0.3  0 0 0 0 0.27  0 0 0 0 0.24  0 0 0 0.28 0" result="grain2"></feColorMatrix>
+          <feComposite in="grain2" in2="wob" operator="in" result="grain3"></feComposite>
+          <feMerge><feMergeNode in="wob"></feMergeNode><feMergeNode in="blot3"></feMergeNode><feMergeNode in="grain3"></feMergeNode></feMerge>
+        </filter>
+        <filter id="wc-bloom" x="-15%" y="-15%" width="130%" height="130%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.06" numOctaves="3" seed="9" result="w2"></feTurbulence>
+          <feDisplacementMap in="SourceGraphic" in2="w2" scale="14" xChannelSelector="R" yChannelSelector="G" result="d2"></feDisplacementMap>
+          <feGaussianBlur in="d2" stdDeviation="0.6"></feGaussianBlur>
+        </filter>
+        <filter id="wc-ink">
+          <feTurbulence type="fractalNoise" baseFrequency="0.08" numOctaves="2" seed="4" result="w3"></feTurbulence>
+          <feDisplacementMap in="SourceGraphic" in2="w3" scale="1.3" xChannelSelector="R" yChannelSelector="G"></feDisplacementMap>
+        </filter>
+        <pattern id="wc-brick" width="12" height="6" patternUnits="userSpaceOnUse">
+          <path d="M0,6 H12 M3,0 V3 M9,3 V6" fill="none" stroke="#7E2E22" stroke-width="0.6" stroke-opacity="0.55"></path>
+        </pattern>
+        <linearGradient id="wc-bow" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stop-color="#5A4632" stop-opacity="0.35"></stop>
+          <stop offset="0.22" stop-color="#5A4632" stop-opacity="0"></stop>
+          <stop offset="0.78" stop-color="#5A4632" stop-opacity="0"></stop>
+          <stop offset="1" stop-color="#5A4632" stop-opacity="0.35"></stop>
+        </linearGradient>
+        <symbol id="wc-wg" viewBox="0 0 20 30" preserveAspectRatio="none"><rect width="20" height="30" fill="#C6D1DB"></rect><rect width="20" height="5" fill="#97A8B8" fill-opacity="0.6"></rect><rect x="2.5" y="6" width="5" height="10" fill="#EEF2F5" fill-opacity="0.7"></rect><rect x="12" y="17" width="5" height="9" fill="#EEF2F5" fill-opacity="0.45"></rect></symbol>
+        <symbol id="wc-wf" viewBox="0 0 20 30" preserveAspectRatio="none"><rect width="20" height="30" class="wc-ik wc-f" vector-effect="non-scaling-stroke"></rect><path d="M10,0 V30 M0,15 H20" class="wc-ik" style="stroke-width: 1.3" vector-effect="non-scaling-stroke"></path></symbol>
+        <symbol id="wc-wga" viewBox="0 0 20 30" preserveAspectRatio="none"><path d="M0,30 V10 A10,10 0 0 1 20,10 V30 Z" fill="#C6D1DB"></path><path d="M3,8 A7,7 0 0 1 9,3 V16 H3 Z" fill="#EEF2F5" fill-opacity="0.7"></path></symbol>
+        <symbol id="wc-wfa" viewBox="0 0 20 30" preserveAspectRatio="none"><path d="M0,30 V10 A10,10 0 0 1 20,10 V30 Z" class="wc-ik wc-f" vector-effect="non-scaling-stroke"></path><path d="M10,0 V30 M0,18 H20" class="wc-ik" style="stroke-width: 1.3" vector-effect="non-scaling-stroke"></path></symbol>
+
+        <symbol id="wc-hA" viewBox="0 0 130 262" overflow="visible">
+          <g filter="url(#wc-paint)">
+            <rect x="4" y="34" width="122" height="152" fill="#BE9675"></rect>
+            <rect x="4" y="186" width="122" height="50" fill="#A88063"></rect>
+            <rect x="58" y="34" width="68" height="202" fill="#C9A27F" fill-opacity="0.6"></rect>
+            <rect x="58" y="34" width="5" height="202" fill="#7E5C44" fill-opacity="0.45"></rect>
+            <rect x="0" y="16" width="130" height="20" fill="#59616B"></rect>
+            <rect x="-2" y="12" width="134" height="6" fill="#454C55"></rect>
+            <rect x="14" y="22" width="14" height="8" fill="#8E979F"></rect><rect x="36" y="22" width="14" height="8" fill="#8E979F"></rect><rect x="80" y="22" width="14" height="8" fill="#8E979F"></rect><rect x="102" y="22" width="14" height="8" fill="#8E979F"></rect>
+            <rect x="13" y="41" width="26" height="5" fill="#DECDB2"></rect><rect x="63" y="41" width="26" height="5" fill="#DECDB2"></rect><rect x="93" y="41" width="26" height="5" fill="#DECDB2"></rect>
+            <rect x="13" y="87" width="26" height="5" fill="#DECDB2"></rect><rect x="63" y="87" width="26" height="5" fill="#DECDB2"></rect><rect x="93" y="87" width="26" height="5" fill="#DECDB2"></rect>
+            <rect x="11" y="126" width="32" height="6" fill="#DECDB2"></rect><rect x="63" y="129" width="26" height="5" fill="#DECDB2"></rect><rect x="93" y="129" width="26" height="5" fill="#DECDB2"></rect>
+            <rect x="4" y="124" width="122" height="4" fill="#9C7558" fill-opacity="0.7"></rect>
+            <use href="#wc-wg" x="16" y="46" width="20" height="28"></use><use href="#wc-wg" x="66" y="46" width="20" height="28"></use><use href="#wc-wg" x="96" y="46" width="20" height="28"></use>
+            <use href="#wc-wg" x="16" y="92" width="20" height="32"></use><use href="#wc-wg" x="66" y="92" width="20" height="32"></use><use href="#wc-wg" x="96" y="92" width="20" height="32"></use>
+            <use href="#wc-wg" x="66" y="134" width="20" height="38"></use><use href="#wc-wg" x="96" y="134" width="20" height="38"></use>
+            <use href="#wc-wg" x="66" y="196" width="20" height="28"></use><use href="#wc-wg" x="96" y="196" width="20" height="28"></use>
+            <rect x="15" y="132" width="24" height="44" fill="#3B4148"></rect>
+            <rect x="18" y="136" width="7" height="16" fill="#9AABBB" fill-opacity="0.7"></rect><rect x="29" y="136" width="7" height="16" fill="#9AABBB" fill-opacity="0.7"></rect>
+            <path d="M11,176 H43 L52,262 H2 Z" fill="#B68E6E"></path>
+            <path d="M43,176 L52,262 H46 L39,176 Z" fill="#8A664D" fill-opacity="0.6"></path>
+            <rect x="63" y="172" width="26" height="6" fill="#5B4636"></rect><rect x="93" y="172" width="26" height="6" fill="#5B4636"></rect>
+            <circle cx="66" cy="171" r="3" class="s-f1"></circle><circle cx="71" cy="169" r="3.2" class="s-f2"></circle><circle cx="77" cy="171" r="3" class="s-f1"></circle><circle cx="83" cy="169" r="3.2" class="s-f2"></circle><circle cx="87" cy="171" r="2.6" class="s-f1"></circle>
+            <circle cx="96" cy="171" r="3" class="s-f2"></circle><circle cx="101" cy="169" r="3.2" class="s-f1"></circle><circle cx="107" cy="171" r="3" class="s-f2"></circle><circle cx="113" cy="169" r="3.2" class="s-f1"></circle><circle cx="117" cy="171" r="2.6" class="s-f2"></circle>
+          </g>
+          <g filter="url(#wc-ink)">
+            <use href="#wc-wf" x="16" y="46" width="20" height="28"></use><use href="#wc-wf" x="66" y="46" width="20" height="28"></use><use href="#wc-wf" x="96" y="46" width="20" height="28"></use>
+            <use href="#wc-wf" x="16" y="92" width="20" height="32"></use><use href="#wc-wf" x="66" y="92" width="20" height="32"></use><use href="#wc-wf" x="96" y="92" width="20" height="32"></use>
+            <use href="#wc-wf" x="66" y="134" width="20" height="38"></use><use href="#wc-wf" x="96" y="134" width="20" height="38"></use>
+            <use href="#wc-wf" x="66" y="196" width="20" height="28"></use><use href="#wc-wf" x="96" y="196" width="20" height="28"></use>
+            <path class="wc-ik" d="M4,236 V36 M126,36 V236 M58,36 V236 M-2,12 H132 M0,18 H130 M0,36 H130 M4,124 H126 M4,128 H126 M4,186 H126"></path>
+            <path class="wc-ik wc-t" d="M8,20 V34 M31,20 V34 M54,20 V34 M76,20 V34 M98,20 V34 M120,20 V34 M14,22 h14 v8 h-14 Z M36,22 h14 v8 h-14 Z M80,22 h14 v8 h-14 Z M102,22 h14 v8 h-14 Z"></path>
+            <path class="wc-ik wc-t" d="M58,194 H126 M58,202 H126 M58,210 H126 M58,218 H126 M58,226 H126 M4,194 H40 M4,202 H40 M4,210 H40 M4,218 H40 M4,226 H40"></path>
+            <path class="wc-ik" d="M70,196 V224 M74,196 V224 M78,196 V224 M82,196 V224 M100,196 V224 M104,196 V224 M108,196 V224 M112,196 V224"></path>
+            <path class="wc-ik wc-f" d="M15,176 V132 H39 V176 M27,132 V176"></path>
+            <path class="wc-ik wc-t" d="M13,41 h26 v5 h-26 Z M63,41 h26 v5 h-26 Z M93,41 h26 v5 h-26 Z M13,87 h26 v5 h-26 Z M63,87 h26 v5 h-26 Z M93,87 h26 v5 h-26 Z M11,126 h32 v6 h-32 Z M63,129 h26 v5 h-26 Z M93,129 h26 v5 h-26 Z"></path>
+            <path class="wc-ik" d="M9.9,186 H44.1 M9,195 H45 M8.1,204 H45.9 M7.1,213 H46.9 M6.2,222 H47.8 M5.2,231 H48.8 M4.3,240 H49.7 M3.4,249 H50.6 M2,262 H52"></path>
+            <path class="wc-ik wc-r" d="M11,166 V176 L2,256 M43,166 V176 L52,256"></path>
+            <path class="wc-ik wc-r" d="M0,256 h4 v6 h-4 Z M50,256 h4 v6 h-4 Z M1,252 h2 v4 M51,252 h2 v4"></path>
+            <path class="wc-ik" d="M63,172 h26 v6 h-26 Z M93,172 h26 v6 h-26 Z"></path>
+          </g>
+          <g class="s-snow" fill="#FFFFFF" stroke="#C9D6E2" stroke-width="0.6">
+            <path d="M-3,12 C20,8 40,10 66,9 C90,8 112,10 133,12 V14 H-3 Z"></path>
+            <path d="M62,172 C70,169 80,170 90,172 Z M92,172 C100,169 110,170 120,172 Z M12,126 C20,123 32,123 43,126 Z"></path>
+            <path d="M10,186 H44 V187.5 H10 Z M8,204 H46 V205.5 H8 Z M6,222 H48 V223.5 H6 Z M4,240 H50 V241.5 H4 Z"></path>
+          </g>
+        </symbol>
+
+        <symbol id="wc-hB" viewBox="0 0 130 262" overflow="visible">
+          <g filter="url(#wc-paint)">
+            <rect x="4" y="40" width="122" height="152" fill="#DCCBAE"></rect>
+            <rect x="4" y="192" width="122" height="44" fill="#CBB898"></rect>
+            <rect x="18" y="40" width="94" height="196" fill="url(#wc-bow)"></rect>
+            <path d="M-2,24 Q65,10 132,24 V44 H-2 Z" fill="#555C66"></path>
+            <path d="M-4,24 Q65,8 134,24 V19 Q65,3 -4,19 Z" fill="#41474F"></path>
+            <rect x="16" y="126" width="98" height="7" fill="#C7B393"></rect>
+            <rect x="26" y="47" width="22" height="5" fill="#C9B697"></rect><rect x="54" y="45" width="22" height="5" fill="#C9B697"></rect><rect x="82" y="47" width="22" height="5" fill="#C9B697"></rect>
+            <use href="#wc-wg" x="28" y="52" width="18" height="26"></use><use href="#wc-wg" x="56" y="50" width="18" height="28"></use><use href="#wc-wg" x="84" y="52" width="18" height="26"></use>
+            <use href="#wc-wg" x="24" y="90" width="22" height="34"></use><use href="#wc-wg" x="54" y="88" width="22" height="36"></use><use href="#wc-wg" x="84" y="90" width="22" height="34"></use>
+            <use href="#wc-wga" x="22" y="142" width="20" height="42"></use><use href="#wc-wga" x="52" y="142" width="20" height="42"></use>
+            <use href="#wc-wg" x="24" y="202" width="20" height="26"></use><use href="#wc-wg" x="54" y="202" width="20" height="26"></use>
+            <path d="M88,186 V150 A13,13 0 0 1 114,150 V186 Z" fill="#B97D3F"></path>
+            <path d="M91,151 A10,10 0 0 1 100,141 V160 H91 Z M102,141 A10,10 0 0 1 111,151 V160 H102 Z" fill="#C6D1DB" fill-opacity="0.85"></path>
+            <path d="M84,186 H118 L126,262 H76 Z" fill="#D2C0A1"></path>
+            <path d="M84,186 L76,262 H82 L89,186 Z" fill="#A99577" fill-opacity="0.55"></path>
+            <rect x="20" y="184" width="24" height="6" fill="#5B4636"></rect><rect x="50" y="184" width="24" height="6" fill="#5B4636"></rect>
+            <circle cx="23" cy="183" r="3" class="s-f2"></circle><circle cx="28" cy="181" r="3.2" class="s-f1"></circle><circle cx="34" cy="183" r="3" class="s-f2"></circle><circle cx="40" cy="181" r="3" class="s-f1"></circle>
+            <circle cx="53" cy="183" r="3" class="s-f1"></circle><circle cx="58" cy="181" r="3.2" class="s-f2"></circle><circle cx="64" cy="183" r="3" class="s-f1"></circle><circle cx="70" cy="181" r="3" class="s-f2"></circle>
+          </g>
+          <g filter="url(#wc-ink)">
+            <use href="#wc-wf" x="28" y="52" width="18" height="26"></use><use href="#wc-wf" x="56" y="50" width="18" height="28"></use><use href="#wc-wf" x="84" y="52" width="18" height="26"></use>
+            <use href="#wc-wf" x="24" y="90" width="22" height="34"></use><use href="#wc-wf" x="54" y="88" width="22" height="36"></use><use href="#wc-wf" x="84" y="90" width="22" height="34"></use>
+            <use href="#wc-wfa" x="22" y="142" width="20" height="42"></use><use href="#wc-wfa" x="52" y="142" width="20" height="42"></use>
+            <use href="#wc-wf" x="24" y="202" width="20" height="26"></use><use href="#wc-wf" x="54" y="202" width="20" height="26"></use>
+            <path class="wc-ik" d="M4,236 V44 M126,44 V236 M18,44 V236 M112,44 V236 M-4,19 Q65,3 134,19 M-2,24 Q65,10 132,24 M-2,44 H132 M16,126 H114 M16,133 H114 M4,192 H126"></path>
+            <path class="wc-ik wc-t" d="M2,36 Q65,22 128,36 M10,38 a3,3 0 1 0 6,0 a3,3 0 1 0 -6,0 M38,33 a3,3 0 1 0 6,0 a3,3 0 1 0 -6,0 M62,31 a3,3 0 1 0 6,0 a3,3 0 1 0 -6,0 M86,33 a3,3 0 1 0 6,0 a3,3 0 1 0 -6,0 M114,38 a3,3 0 1 0 6,0 a3,3 0 1 0 -6,0"></path>
+            <path class="wc-ik wc-t" d="M30,129 c4,-3 8,3 12,0 c4,-3 8,3 12,0 c4,-3 8,3 12,0 c4,-3 8,3 12,0 c4,-3 8,3 12,0 M8,60 c3,4 -3,8 0,12 c3,4 -3,8 0,12 M122,60 c3,4 -3,8 0,12 c3,4 -3,8 0,12"></path>
+            <path class="wc-ik" d="M28,202 V228 M32,202 V228 M36,202 V228 M40,202 V228 M58,202 V228 M62,202 V228 M66,202 V228 M70,202 V228"></path>
+            <path class="wc-ik wc-f" d="M88,186 V150 A13,13 0 0 1 114,150 V186 M101,137 V186 M88,162 H114"></path>
+            <path class="wc-ik" d="M84,186 H118 M82.9,196 H119.1 M82.1,204 H119.9 M81.3,212 H120.7 M80.4,220 H121.6 M79.6,228 H122.4 M78.7,236 H123.3 M77.9,244 H124.1 M77.1,252 H124.9 M76,262 H126"></path>
+            <path class="wc-ik wc-r" d="M84,176 V186 L76,256 M118,176 V186 L126,256"></path>
+            <path class="wc-ik wc-r" d="M74,248 h5 v14 h-5 Z M123,248 h5 v14 h-5 Z M76.5,248 V242 M125.5,248 V242"></path>
+            <circle class="wc-ik" cx="76.5" cy="239" r="3"></circle><circle class="wc-ik" cx="125.5" cy="239" r="3"></circle>
+            <path class="wc-ik" d="M20,184 h24 v6 h-24 Z M50,184 h24 v6 h-24 Z M118,150 v6 h3 v-6 Z"></path>
+          </g>
+          <g class="s-snow" fill="#FFFFFF" stroke="#C9D6E2" stroke-width="0.6">
+            <path d="M-4,19 Q65,1 134,19 Q65,5 -4,21 Z"></path>
+            <path d="M19,184 C28,181 38,181 45,184 Z M49,184 C58,181 68,181 75,184 Z M16,126 C40,123 90,123 114,126 Z"></path>
+            <path d="M83,196 H119 V197.5 H83 Z M81,212 H121 V213.5 H81 Z M79.5,228 H122.5 V229.5 H79.5 Z M78,244 H124 V245.5 H78 Z"></path>
+          </g>
+        </symbol>
+
+        <symbol id="wc-hC" viewBox="0 0 130 262" overflow="visible">
+          <g filter="url(#wc-paint)">
+            <rect x="4" y="46" width="122" height="190" fill="#B5543F"></rect>
+            <rect x="4" y="46" width="122" height="98" fill="url(#wc-brick)"></rect>
+            <rect x="4" y="144" width="58" height="48" fill="url(#wc-brick)"></rect>
+            <polygon points="50,46 90,8 130,46" fill="#6A7079"></polygon>
+            <rect x="0" y="34" width="54" height="13" fill="#5A616A"></rect>
+            <rect x="48" y="43" width="82" height="6" fill="#535A63"></rect>
+            <ellipse cx="90" cy="31" rx="6" ry="9" fill="#C6D1DB"></ellipse>
+            <rect x="62" y="144" width="64" height="92" fill="#A77A60"></rect>
+            <rect x="62" y="144" width="64" height="92" fill="url(#wc-bow)"></rect>
+            <rect x="4" y="192" width="58" height="44" fill="#A77A60"></rect>
+            <path d="M11,60 A13,13 0 0 1 37,60 V64 H11 Z M67,60 A13,13 0 0 1 93,60 V64 H67 Z M93,60 A13,13 0 0 1 119,60 V64 H93 Z" fill="#D9C2A0"></path>
+            <use href="#wc-wga" x="14" y="58" width="20" height="32"></use><use href="#wc-wga" x="70" y="58" width="20" height="32"></use><use href="#wc-wga" x="96" y="58" width="20" height="32"></use>
+            <rect x="12" y="99" width="24" height="5" fill="#D9C2A0"></rect><rect x="68" y="99" width="24" height="5" fill="#D9C2A0"></rect><rect x="94" y="99" width="24" height="5" fill="#D9C2A0"></rect>
+            <use href="#wc-wg" x="14" y="104" width="20" height="32"></use><use href="#wc-wg" x="70" y="104" width="20" height="32"></use><use href="#wc-wg" x="96" y="104" width="20" height="32"></use>
+            <use href="#wc-wg" x="70" y="152" width="20" height="34"></use><use href="#wc-wg" x="96" y="152" width="20" height="34"></use>
+            <use href="#wc-wg" x="70" y="204" width="20" height="24"></use><use href="#wc-wg" x="96" y="204" width="20" height="24"></use>
+            <path d="M12,192 V160 A14,14 0 0 1 40,160 V192 Z" fill="#5C3C25"></path>
+            <path d="M15,160 A11,11 0 0 1 37,160 V164 H15 Z" fill="#C6D1DB" fill-opacity="0.85"></path>
+            <path d="M8,192 H44 L52,262 H0 Z" fill="#AD866C"></path>
+            <path d="M44,192 L52,262 H46 L39,192 Z" fill="#87634B" fill-opacity="0.55"></path>
+            <rect x="67" y="186" width="26" height="6" fill="#5B4636"></rect><rect x="93" y="186" width="26" height="6" fill="#5B4636"></rect>
+            <circle cx="70" cy="185" r="3" class="s-f1"></circle><circle cx="76" cy="183" r="3.2" class="s-f2"></circle><circle cx="82" cy="185" r="3" class="s-f1"></circle><circle cx="88" cy="183" r="3" class="s-f2"></circle>
+            <circle cx="97" cy="185" r="3" class="s-f2"></circle><circle cx="103" cy="183" r="3.2" class="s-f1"></circle><circle cx="109" cy="185" r="3" class="s-f2"></circle><circle cx="115" cy="183" r="3" class="s-f1"></circle>
+          </g>
+          <g filter="url(#wc-ink)">
+            <use href="#wc-wfa" x="14" y="58" width="20" height="32"></use><use href="#wc-wfa" x="70" y="58" width="20" height="32"></use><use href="#wc-wfa" x="96" y="58" width="20" height="32"></use>
+            <use href="#wc-wf" x="14" y="104" width="20" height="32"></use><use href="#wc-wf" x="70" y="104" width="20" height="32"></use><use href="#wc-wf" x="96" y="104" width="20" height="32"></use>
+            <use href="#wc-wf" x="70" y="152" width="20" height="34"></use><use href="#wc-wf" x="96" y="152" width="20" height="34"></use>
+            <use href="#wc-wf" x="70" y="204" width="20" height="24"></use><use href="#wc-wf" x="96" y="204" width="20" height="24"></use>
+            <path class="wc-ik" d="M4,236 V47 M126,49 V236 M50,46 L90,8 L130,46 M0,34 H54 M0,47 H54 M48,49 H130 M62,144 V236 M4,144 H126 M4,192 H62 M4,96 H126"></path>
+            <ellipse class="wc-ik wc-f" cx="90" cy="31" rx="6" ry="9"></ellipse>
+            <path class="wc-ik wc-t" d="M60,40 L90,14 L120,40 M84,24 L84,38 M96,24 L96,38 M6,37 v8 M16,37 v8 M26,37 v8 M36,37 v8 M46,37 v8"></path>
+            <path class="wc-ik wc-t" d="M11,60 A13,13 0 0 1 37,60 M67,60 A13,13 0 0 1 93,60 M93,60 A13,13 0 0 1 119,60 M62,150 H126 M62,156 H126 M4,200 H62 M4,208 H62 M4,216 H62 M4,224 H62"></path>
+            <path class="wc-ik" d="M74,204 V228 M78,204 V228 M82,204 V228 M86,204 V228 M100,204 V228 M104,204 V228 M108,204 V228 M112,204 V228"></path>
+            <path class="wc-ik wc-f" d="M12,192 V160 A14,14 0 0 1 40,160 V192 M26,164 V192 M12,166 H40"></path>
+            <path class="wc-ik" d="M8,192 H44 M7.1,200 H44.9 M6.2,208 H45.8 M5.3,216 H46.7 M4.3,224 H47.7 M3.4,232 H48.6 M2.5,240 H49.5 M1.6,248 H50.4 M0.7,256 H51.3 M0,262 H52"></path>
+            <path class="wc-ik wc-r" d="M8,182 V192 L0,258 M44,182 V192 L52,258"></path>
+            <path class="wc-ik wc-r" d="M-2,254 h4 v8 h-4 Z M50,254 h4 v8 h-4 Z"></path>
+            <path class="wc-ik" d="M67,186 h26 v6 h-26 Z M93,186 h26 v6 h-26 Z"></path>
+          </g>
+          <g class="s-snow" fill="#FFFFFF" stroke="#C9D6E2" stroke-width="0.6">
+            <path d="M50,46 L90,8 L130,46 L127,46 L90,12 L53,46 Z M-1,34 H55 V31.5 H-1 Z"></path>
+            <path d="M66,186 C75,183 85,183 93,186 Z M93,186 C101,183 111,183 120,186 Z"></path>
+            <path d="M7,200 H45 V201.5 H7 Z M5,216 H47 V217.5 H5 Z M3,232 H49 V233.5 H3 Z M1.5,248 H50.5 V249.5 H1.5 Z"></path>
+          </g>
+        </symbol>
+      </defs>
+
+      <g transform="translate(6,36)">
+        <path d="M57,262 C58,222 56,192 59,160 L64,160 C62,192 64,222 66,262 Z" fill="#6B5140" filter="url(#wc-paint)"></path>
+        <path class="wc-ik" d="M60,176 C52,156 40,146 28,128 M61,164 C70,146 82,134 94,116 M61,150 C58,124 60,104 58,80 M46,144 C40,132 28,122 18,114 M78,140 C88,130 98,120 106,108 M58,114 C50,100 44,90 40,74 M60,106 C68,94 76,84 82,70 M40,74 C36,68 32,62 30,56 M82,70 C86,64 88,58 90,52 M28,128 C22,124 16,122 10,122 M94,116 C100,114 106,114 112,116" style="stroke: #4B392C; stroke-width: 1.8"></path>
+        <g class="s-canopy" filter="url(#wc-bloom)">
+          <circle cx="34" cy="122" r="22" class="s-c2" fill-opacity="0.8"></circle>
+          <circle cx="86" cy="120" r="24" class="s-c1" fill-opacity="0.8"></circle>
+          <circle cx="58" cy="94" r="28" class="s-c3" fill-opacity="0.75"></circle>
+          <circle cx="28" cy="94" r="18" class="s-c1" fill-opacity="0.75"></circle>
+          <circle cx="92" cy="90" r="20" class="s-c4" fill-opacity="0.7"></circle>
+          <circle cx="60" cy="64" r="22" class="s-c5" fill-opacity="0.75"></circle>
+          <circle cx="38" cy="70" r="16" class="s-c2" fill-opacity="0.7"></circle>
+          <circle cx="82" cy="64" r="16" class="s-c1" fill-opacity="0.7"></circle>
+          <circle cx="16" cy="112" r="12" class="s-c3" fill-opacity="0.7"></circle>
+          <circle cx="106" cy="110" r="13" class="s-c3" fill-opacity="0.7"></circle>
+          <circle cx="60" cy="126" r="20" class="s-c4" fill-opacity="0.65"></circle>
+          <circle cx="72" cy="100" r="16" class="s-c5" fill-opacity="0.7"></circle>
+          <circle cx="48" cy="46" r="11" class="s-c3" fill-opacity="0.6"></circle>
+          <circle cx="74" cy="44" r="10" class="s-c2" fill-opacity="0.6"></circle>
+        </g>
+        <g class="s-blossom" fill="#F2C4D2">
+          <circle cx="30" cy="80" r="4"></circle><circle cx="70" cy="58" r="4"></circle><circle cx="90" cy="96" r="3.5"></circle><circle cx="48" cy="104" r="4"></circle><circle cx="76" cy="122" r="3.5"></circle><circle cx="22" cy="110" r="3"></circle><circle cx="62" cy="84" r="3"></circle><circle cx="100" cy="80" r="3"></circle><circle cx="40" cy="132" r="3"></circle><circle cx="54" cy="52" r="3"></circle>
+        </g>
+        <g class="s-fall">
+          <circle cx="10" cy="152" r="2.5" class="s-c2"></circle><circle cx="106" cy="146" r="2" class="s-c1"></circle><circle cx="118" cy="176" r="2.5" class="s-c4"></circle><circle cx="-2" cy="194" r="2" class="s-c3"></circle><circle cx="96" cy="206" r="2.2" class="s-c2"></circle><circle cx="22" cy="228" r="2" class="s-c1"></circle><circle cx="112" cy="238" r="2" class="s-c4"></circle><circle cx="6" cy="250" r="2.4" class="s-c3"></circle>
+          <ellipse cx="40" cy="261" rx="4" ry="1.6" class="s-c4"></ellipse><ellipse cx="78" cy="262" rx="4" ry="1.6" class="s-c2"></ellipse><ellipse cx="92" cy="260" rx="3.5" ry="1.4" class="s-c1"></ellipse>
+        </g>
+        <g class="s-snow" fill="#FFFFFF" stroke="#C9D6E2" stroke-width="0.6">
+          <path d="M28,127 C40,140 52,150 60,170 L60,172 C52,152 40,142 28,129 Z M94,115 C82,133 70,145 61,163 L62,165 C71,147 83,135 95,117 Z"></path>
+        </g>
+        <ellipse cx="62" cy="262" rx="52" ry="6" class="s-grass" fill-opacity="0.7" filter="url(#wc-bloom)"></ellipse>
+        <path class="wc-ik wc-t" d="M24,262 l2,-6 M30,262 l-1,-5 M88,262 l2,-6 M96,262 l-1,-5 M50,262 l1,-4 M70,262 l1,-5"></path>
+      </g>
+      <use href="#wc-hA" x="150" y="36" width="130" height="262"></use>
+      <use href="#wc-hB" x="296" y="36" width="130" height="262"></use>
+      <use href="#wc-hC" x="442" y="36" width="130" height="262"></use>
+    </svg></div>
+</body>
+</html>
